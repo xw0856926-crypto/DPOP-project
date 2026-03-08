@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene2</title>
+  <link rel="stylesheet" href="./scene2.css" />
+</head>
+<body>
+  <div class="viewport">
+    <div class="stage" id="stage">
+
+      <!-- task1 -->
+      <section class="scene active" id="task1">
+        <img class="bg-img" src="./image/task1-bg.png" alt="task1 background" />
+
+        <div class="timer-panel" id="timerPanel">
+          <img
+            id="timerPanelImg"
+            src="./image/time-left-panel.png"
+            alt="time left panel"
+          />
+        </div>
+      </section>
+
+      <!-- outcome1 -->
+      <section class="scene" id="outcome1">
+        <img class="bg-img" src="./image/outcome1.png" alt="outcome1 background" />
+
+        <img
+          class="danger-panel danger-left"
+          src="./image/danger-left.png"
+          alt="danger left"
+        />
+
+        <img
+          class="danger-panel danger-right"
+          src="./image/danger-right.png"
+          alt="danger right"
+        />
+
+        <button id="task2Trigger" class="task2-trigger">
+
+        <img
+        class="task2-frame"
+        src="../assets/image/outcome-frame.svg"
+        alt=""
+        >
+
+        <span class="task2-text">
+        TASK 2
+        </span>
+
+        </button>
+      </section>
+
+      <section class="scene" id="task2">
+
+        <img class="bg-img" src="./image/task2-bg.png" alt="task2 background">
+
+      </section>
+
+      <!-- 弹窗：一定放在 stage 里面，所有 scene 后面 -->
+      <div id="popupOverlay" class="popup-overlay">
+        <div class="popup-card glitch-popup" id="glitchPopup">
+          <img class="popup-main" src="./image/image1.png" alt="task2 image" />
+
+          <img class="popup-ghost popup-ghost-a" src="./image/image1.png" alt="" />
+          <img class="popup-ghost popup-ghost-b" src="./image/image1.png" alt="" />
+
+          <div class="glitch-slice slice-1">
+            <img src="./image/image1.png" alt="" />
+         </div>
+
+          <div class="glitch-slice slice-2">
+            <img src="./image/image1.png" alt="" />
+         </div>
+
+          <div class="glitch-slice slice-3">
+            <img src="./image/image1.png" alt="" />
+         </div>
+
+          <div class="popup-noise"></div>
+          <div class="popup-scanline"></div>
+       </div>
+     </div>
+
+    </div>
+  </div>
+
+  <audio
+    id="alarmSound"
+    src="./sound/alexis_gaming_cam-alarme-342932.mp3"
+    loop
+    preload="auto"
+  ></audio>
+
+  <script src="./scene2.js"></script>
+</body>
+</html>

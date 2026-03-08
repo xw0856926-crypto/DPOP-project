@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turth</title>
+  <link rel="stylesheet" href="./turth1.css" />
+</head>
+
+<body>
+  <div class="stage">
+    <!-- 背景图 -->
+    <div class="bg" aria-hidden="true"></div>
+
+    <!-- 叠加层：坐标轴/色块/曲线/文字 -->
+    <svg class="overlay" viewBox="0 0 1440 1024" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="blur"></feGaussianBlur>
+          <feMerge>
+            <feMergeNode in="blur"></feMergeNode>
+            <feMergeNode in="SourceGraphic"></feMergeNode>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- 上半图：Dangerous Zone 色带 -->
+      <rect x="297" y="363" width="870" height="44" fill="rgba(255, 0, 0, 0.15)"></rect>
+
+      <!-- 下半图：Balanced Zone 色带 -->
+      <rect x="297" y="571" width="870" height="153" fill="rgba(234, 52, 247, 0.1)"></rect>
+
+      <!-- 坐标轴（上图） -->
+      <g stroke="rgba(161,252,254,1)" stroke-width="3">
+        <line x1="297" y1="161" x2="297" y2="436"></line>
+        <path d="M298.5 157 L292 168.25 L305 168.25 Z" fill="rgba(161,252,254,1)"></path>
+        <line x1="297" y1="407" x2="1167" y2="407"></line>
+        <path d="M1174 404.5 L1162.75 398 L1162.75 411 Z" fill="rgba(161,252,254,1)"></path>
+      </g>
+
+      <!-- 坐标轴（下图） -->
+      <g stroke="rgba(161,252,254,1)" stroke-width="3">
+        <line x1="297" y1="478" x2="297" y2="753"></line>
+        <path d="M298.5 476 L292 487.25 L305 487.25 Z" fill="rgba(161,252,254,1)"></path>
+        <line x1="297" y1="724" x2="1167" y2="724"></line>
+        <path d="M1174 723.5 L1162.75 717 L1162.75 730 Z" fill="rgba(161,252,254,1)"></path>
+      </g>
+
+      <!-- 文字 -->
+      <g id="axisText" class="axis-text" transform="translate(0,0)">
+         <text id="t_population">Population</text>
+         <text id="t_dangerous">Dangerous</text>
+         <text id="t_zone">Zone</text>
+         <text id="t_time_top">Time</text>
+
+         <text id="t_labour">Labour</text>
+         <text id="t_balanced">Balanced</text>
+         <text id="t_zone2">Zone</text>
+         <text id="t_time_bottom">Time</text>
+      </g>
+
+      <!-- 上图曲线 -->
+  <g transform="translate(336,191) scale(1)">
+      <path
+        id="lineTop"
+        class="trace-line"
+        d="M1.0459 155.5C74.0459 84.5 77.0459 25.5 113.046 27.5C149.046 29.5 140.046 59.5 177.046 58.5C214.046 57.5 214.046 1.49994 267.046 1.5C316.046 1.50005 354.91 41.5347 451.046 58.5C553.046 76.5001 539.393 149.62 589.046 155.5C665.046 164.5 701.046 198.5 743.046 198.5C776.646 198.5 805.046 202.5 815.046 204.5"
+        fill="none"
+        stroke="rgba(161,252,254,1)"
+        stroke-width="3"
+        filter="url(#glow)"
+      />
+      <!-- 上图光点 -->
+      <circle 
+        id="dotTop" 
+        r="7" 
+        fill="rgba(161,252,254,1)" 
+        filter="url(#glow)">
+      </circle>
+  </g>    
+
+      <!-- 下图曲线 -->
+  <g transform="translate(336,490) scale(1)">
+      <path
+        id="lineBottom"
+        class="trace-line"
+        d="M1.0459 184.471C74.0459 255.471 81.0459 156.471 117.046 154.471C153.046 152.471 159.046 183.471 196.046 184.471C233.046 185.471 272.604 132.145 325.046 124.471C377.487 116.796 397.613 84.4708 426.046 84.4708C501.046 84.4708 555.046 100.471 605.046 100.471C689.046 100.471 707.584 91.9755 743.046 69.4708C795.046 36.4708 805.046 3.47076 815.046 1.47076"
+        fill="none"
+        stroke="rgba(161,252,254,1)"
+        stroke-width="3"
+        filter="url(#glow)"
+      />
+      <!-- 下图光点 -->
+      <circle 
+        id="dotBottom" 
+        r="7" 
+        fill="rgba(161,252,254,1)" 
+        filter="url(#glow)">
+      </circle>
+  </g> 
+    </svg>
+
+    <!-- 按钮（可点） -->
+    <div class="scene-button" id="nextBtn">
+
+      <img 
+        src="../assets/image/outcome-frame.svg" 
+        class="scene-frame"
+        alt=""
+      >
+
+      <span class="scene-text">
+        Second Scene
+      </span>
+
+    </div>
+  </div>
+  <script src="./turth.js" defer></script>
+</body>
+</html>
