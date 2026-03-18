@@ -1,0 +1,208 @@
+@font-face {
+  font-family: "CascadiaCode";
+  src: url("../../assets/fonts/CascadiaCode.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "CascadiaCode";
+  src: url("../../assets/fonts/CascadiaCode.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #120616;
+}
+
+body {
+  background: #120616;
+  font-family: "CascadiaCode", monospace;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  font-synthesis: none;
+}
+
+/* 负责居中显示 */
+.viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 舞台固定尺寸 */
+.stage {
+  position: absolute;
+  width: 1440px;
+  height: 1024px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center center;
+  overflow: hidden;
+  background: #120616;
+  backface-visibility: hidden;
+}
+
+/* 背景图铺满舞台 */
+.page-bg {
+  position: absolute;
+  inset: 0;
+  width: 1440px;
+  height: 1024px;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+}
+
+/* 三张卡片文字层 */
+.memory-card {
+  position: absolute;
+  width: 245px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.card1 {
+  left: 137px;
+  top: 515px;
+}
+
+.card2 {
+  left: 575px;
+  top: 515px;
+}
+
+.card3 {
+  left: 1013px;
+  top: 515px;
+}
+
+.question-state {
+  width: 100%;
+}
+
+.question-text {
+  margin: 0 0 22px 0;
+  font-family: "CascadiaCode", monospace;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: left;
+}
+
+/* 日期输入区域 */
+.date-entry {
+  position: relative;
+  width: 170px;
+  height: 52px;
+  margin: 0 auto;
+}
+
+/* 输入文字放在横线上方 */
+.date-text-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 24px;
+  z-index: 2;
+}
+
+.date-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  text-align: center;
+  font-family: "CascadiaCode", monospace;
+  font-weight: 600;
+  font-size: 18px;
+  outline: none;
+  padding: 0;
+  line-height: 24px;
+}
+
+.date-input::placeholder {
+  color: rgba(255, 255, 255, 0.95);
+  font-family: "CascadiaCode", monospace;
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* 横线基础样式 */
+.line-svg {
+  position: absolute;
+  display: block;
+}
+
+/* 卡片1 横线 */
+.line1 {
+  left: 111px;
+  width: 187.12px;
+  bottom: 0px;
+}
+
+/* 卡片2 横线 */
+.line2 {
+  left: 115px;
+  width: 187.12px;
+  bottom: 0px;
+}
+
+/* 卡片3 横线 */
+.line3 {
+  left: 120px;
+  width: 187.12px;
+  bottom: 16px;
+}
+
+.diary-state {
+  width: 100%;
+}
+
+.card-title {
+  margin: 0;
+  text-align: center;
+  font-family: "CascadiaCode", monospace;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.diary-line {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.diary-text {
+  margin: 0;
+  text-align: left;
+  font-family: "CascadiaCode", monospace;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.28;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: normal;
+}
+
+.hidden {
+  display: none;
+}

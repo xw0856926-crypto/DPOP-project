@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reminiscence</title>
+  <link rel="stylesheet" href="./reminiscence.css" />
+</head>
+<body>
+  <div class="viewport">
+    <div class="stage" id="stage">
+      <img
+        src="./image/reminiscence-bg.png"
+        alt="Reminiscence Background"
+        class="page-bg"
+      />
+
+      <div class="overlay">
+        <!-- Card 1 -->
+        <section class="memory-card card1">
+          <div class="question-state">
+            <p class="question-text">
+              Do you still remember the date of the last time you sunbathed?
+            </p>
+
+            <div class="date-entry">
+              <div class="date-text-wrap">
+                <input
+                 type="text"
+                 class="date-input"
+                 placeholder="xx/xx"
+                 maxlength="5"
+                />
+             </div>
+             <img src="./image/line.svg" class="line-svg line1" />
+           </div>
+          </div>
+
+          <div class="diary-state hidden">
+            <h2 class="card-title">Diary</h2>
+            <img src="./image/line.svg" alt="" class="line-svg diary-line" />
+            <p class="diary-text" data-template='xx/xx, today was a sunny and pleasant day. In the afternoon, I went to "Bert Park" to enjoy the rare sunshine. The world under the sunlight was truly beautiful.'>
+              xx/xx, today was a sunny and pleasant day. In the afternoon, I went to "Bert Park" to enjoy the rare sunshine. The world under the sunlight was truly beautiful.
+            </p>
+          </div>
+        </section>
+
+        <!-- Card 2 -->
+        <section class="memory-card card2">
+          <div class="question-state">
+            <p class="question-text">
+              Do you still remember the date when you last interacted with animals?
+            </p>
+
+            <div class="date-entry">
+              <div class="date-text-wrap">
+                <input
+                 type="text"
+                 class="date-input"
+                 placeholder="xx/xx"
+                 maxlength="5"
+                />
+             </div>
+             <img src="./image/line.svg" class="line-svg line2" />
+           </div>
+          </div>
+
+          <div class="diary-state hidden">
+            <h2 class="card-title">Diary</h2>
+            <img src="./image/line.svg" alt="" class="line-svg diary-line" />
+            <p class="diary-text" data-template='xx/xx, today I encountered an animal that made the whole world feel alive. Its presence, movement, and warmth stayed in my memory for a long time.'>
+              xx/xx, today, I took my little dog to play games on the lawn. Although it was covered in dirt all over, we both had a great time.
+            </p>
+          </div>
+        </section>
+
+        <!-- Card 3 -->
+        <section class="memory-card card3">
+          <div class="question-state">
+            <p class="question-text">
+              Do you still remember the date of the last time you spent time with your family?
+            </p>
+
+           <div class="date-entry">
+              <div class="date-text-wrap">
+                <input
+                 type="text"
+                 class="date-input"
+                 placeholder="xx/xx"
+                 maxlength="5"
+                />
+             </div>
+             <img src="./image/line.svg" class="line-svg line3" />
+           </div>
+          </div>
+
+          <div class="diary-state hidden">
+            <h2 class="card-title">Diary</h2>
+            <img src="./image/line.svg" alt="" class="line-svg diary-line" />
+            <p class="diary-text" data-template='xx/xx, I spent time with my family around a table full of food and warmth. Their voices, expressions, and companionship made the evening unforgettable.'>
+              xx/xx, today was a rare occasion to go home. I had a sumptuous dinner with my parents, just like when I was a child. It was so wonderful!
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="./reminiscence.js"></script>
+</body>
+</html>

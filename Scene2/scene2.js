@@ -3,13 +3,40 @@ const taskScene = document.getElementById("task1");
 const outcomeScene = document.getElementById("outcome1");
 const timerPanelImg = document.getElementById("timerPanelImg");
 const alarmSound = document.getElementById("alarmSound");
+
 const task2Trigger = document.getElementById("task2Trigger");
+
 const popupOverlay = document.getElementById("popupOverlay");
 const glitchPopup = document.getElementById("glitchPopup");
+
 const task2Scene = document.getElementById("task2");
+const outcome2Scene = document.getElementById("outcome2");
+const task3Scene = document.getElementById("task3");
+
+const task3Trigger = document.getElementById("task3Trigger");
+
+const popupMain = document.getElementById("popupMain");
+const popupGhostA = document.getElementById("popupGhostA");
+const popupGhostB = document.getElementById("popupGhostB");
+const popupSliceImgs = document.querySelectorAll(".popupSliceImg");
+
+const outcome3Scene = document.getElementById("outcome3");
+const reminiscenceTrigger = document.getElementById("reminiscenceTrigger");
+
+const outcome1Bg = document.getElementById("outcome1Bg");
+const outcome2Bg = document.getElementById("outcome2Bg");
+const outcome3Bg = document.getElementById("outcome3Bg");
 
 let flickerTimer = null;
 let shakeFrame = null;
+
+let task2PopupSeen = false;
+let task3Timer = null;
+let task3PopupSeen = false;
+let reminiscencePopupSeen = false;
+
+let pendingBackgroundSwap = null;
+let popupContext = "";
 
 /* 让 1440x1024 舞台始终完整显示，不出现滚动 */
 function fitStage() {
@@ -98,10 +125,11 @@ let popupTimer = null;
 let closingTimer = null;
 let popupSeen = false;
 
-function openPopup() {
+function openPopup(context) {
   clearTimeout(popupTimer);
   clearTimeout(closingTimer);
 
+  popupContext = context;
   popupOverlay.classList.add("show");
 
   glitchPopup.classList.remove("is-closing");
@@ -128,21 +156,21 @@ function closePopup() {
   closingTimer = setTimeout(() => {
     popupOverlay.classList.remove("show");
     glitchPopup.classList.remove("is-closing");
+
+    if (popupContext) {
+      swapOutcomeBackground(popupContext);
+      popupContext = "";
+    }
   }, 320);
 }
 
 task2Trigger.addEventListener("click", () => {
-  if (!popupSeen) {
-    openPopup();
-    popupSeen = true;
+  if (!task2PopupSeen) {
+    setPopupImage("./image/image1.png");
+    openPopup("outcome1");
+    task2PopupSeen = true;
   } else {
-    /* 停止 outcome1 警报音 */
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-
-    /* 进入 task2 */
-    outcomeScene.classList.remove("active");
-    task2Scene.classList.add("active");
+    enterTask2();
   }
 });
 
@@ -158,3 +186,114 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+function showScene(sceneToShow) {
+  document.querySelectorAll(".scene").forEach((scene) => {
+    scene.classList.remove("active");
+  });
+
+  sceneToShow.classList.add("active");
+}
+
+function setPopupImage(src) {
+  popupMain.src = src;
+  popupGhostA.src = src;
+  popupGhostB.src = src;
+
+  popupSliceImgs.forEach((img) => {
+    img.src = src;
+  });
+}
+
+let task2Timer = null;
+
+function enterTask2() {
+  alarmSound.pause();
+  alarmSound.currentTime = 0;
+
+  showScene(task2Scene);
+
+  task2Scene.appendChild(timerPanel);
+  timerPanel.style.display = "block";
+
+  startTimerEffects();
+
+  clearTimeout(task2Timer);
+  task2Timer = setTimeout(() => {
+    enterOutcome2();
+  }, 15000);
+}
+
+function enterOutcome2() {
+  stopTimerEffects();
+  timerPanel.style.display = "none";
+
+  showScene(outcome2Scene);
+
+  alarmSound.currentTime = 0;
+  alarmSound.play();
+}
+
+task3Trigger.addEventListener("click", () => {
+  if (!task3PopupSeen) {
+    setPopupImage("./image/image2.png");
+    openPopup("outcome2");
+    task3PopupSeen = true;
+  } else {
+    enterTask3();
+  }
+});
+
+/* 进入 task3 */
+function enterTask3() {
+  alarmSound.pause();
+  alarmSound.currentTime = 0;
+
+  showScene(task3Scene);
+
+  task3Scene.appendChild(timerPanel);
+  timerPanel.style.display = "block";
+  startTimerEffects();
+
+  clearTimeout(task3Timer);
+  task3Timer = setTimeout(() => {
+    enterOutcome3();
+  }, 15000);
+}
+
+/* 进入 outcome3 */
+function enterOutcome3() {
+  stopTimerEffects();
+  timerPanel.style.display = "none";
+
+  showScene(outcome3Scene);
+
+  alarmSound.currentTime = 0;
+  alarmSound.play().catch(() => {});
+}
+
+reminiscenceTrigger.addEventListener("click", () => {
+  if (!reminiscencePopupSeen) {
+    setPopupImage("./image/image3.png");
+    openPopup("outcome3");
+    reminiscencePopupSeen = true;
+  } else {
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+    
+    window.location.href = "./Reminiscence/reminiscence.html";
+  }
+});
+
+function swapOutcomeBackground(context) {
+  if (context === "outcome1") {
+    outcome1Bg.src = "./image/newoutcome1.png";
+  }
+
+  if (context === "outcome2") {
+    outcome2Bg.src = "./image/newoutcome2.png";
+  }
+
+  if (context === "outcome3") {
+    outcome3Bg.src = "./image/newoutcome3.png";
+  }
+}

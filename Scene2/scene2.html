@@ -25,68 +25,118 @@
 
       <!-- outcome1 -->
       <section class="scene" id="outcome1">
-        <img class="bg-img" src="./image/outcome1.png" alt="outcome1 background" />
+       <img id="outcome1Bg" class="bg-img" src="./image/outcome1.png" alt="outcome1 background" />
 
-        <img
-          class="danger-panel danger-left"
-          src="./image/danger-left.png"
-          alt="danger left"
-        />
+       <img
+         class="danger-panel danger-left"
+         src="./image/danger-left.png"
+         alt="danger left"
+       />
 
-        <img
-          class="danger-panel danger-right"
-          src="./image/danger-right.png"
-          alt="danger right"
-        />
+       <img
+         class="danger-panel danger-right"
+         src="./image/danger-right.png"
+         alt="danger right"
+       />
 
-        <button id="task2Trigger" class="task2-trigger">
+       <button id="task2Trigger" class="task-button task2-trigger" aria-label="Open task 2">
+         <img
+           class="task2-frame"
+           src="../assets/image/outcome-frame.svg"
+           alt=""
+         />
+          <span class="task2-text">TASK 2</span>
+       </button>
+     </section>
 
-        <img
-        class="task2-frame"
-        src="../assets/image/outcome-frame.svg"
-        alt=""
-        >
+     <!-- task2 -->
+     <section class="scene" id="task2">
+        <img class="bg-img" src="./image/task2-bg.png" alt="task2 background" />
+     </section>
 
-        <span class="task2-text">
-        TASK 2
-        </span>
+     <!-- outcome2 -->
+     <section class="scene" id="outcome2">
+       <img id="outcome2Bg" class="bg-img" src="./image/outcome2.png" alt="outcome2 background" />
 
-        </button>
-      </section>
+       <img
+         class="danger-panel danger-left"
+         src="./image/danger-left.png"
+         alt="danger left"
+       />
 
-      <section class="scene" id="task2">
+       <img
+         class="danger-panel danger-right"
+         src="./image/danger-right.png"
+         alt="danger right"
+       />
 
-        <img class="bg-img" src="./image/task2-bg.png" alt="task2 background">
+       <button id="task3Trigger" class="task-button task3-trigger" aria-label="Open task 3">
+         <img
+           class="task3-frame"
+           src="../assets/image/outcome-frame.svg"
+           alt=""
+         />
+         <span class="task3-text">TASK 3</span>
+       </button>
+     </section>
 
-      </section>
+     <!-- task3 -->
+     <section class="scene" id="task3">
+       <img class="bg-img" src="./image/task3-bg.png" alt="task3 background" />
+     </section>
+
+     <!-- outcome3 -->
+     <section class="scene" id="outcome3">
+       <img id="outcome3Bg" class="bg-img" src="./image/outcome3.png" alt="outcome3 background" />
+
+       <img
+         class="danger-panel danger-left"
+         src="./image/danger-left.png"
+         alt="danger left"
+       />
+
+       <img
+         class="danger-panel danger-right"
+         src="./image/danger-right.png"
+         alt="danger right"
+       />
+
+       <button id="reminiscenceTrigger" class="reminiscence-trigger" aria-label="Open reminiscence">
+         <img
+           class="reminiscence-frame"
+           src="../assets/image/outcome-frame.svg"
+           alt=""
+         />
+         <span class="reminiscence-text">Reminiscence</span>
+       </button>
+     </section>
+
+      
 
       <!-- 弹窗：一定放在 stage 里面，所有 scene 后面 -->
       <div id="popupOverlay" class="popup-overlay">
-        <div class="popup-card glitch-popup" id="glitchPopup">
-          <img class="popup-main" src="./image/image1.png" alt="task2 image" />
+       <div class="popup-card glitch-popup" id="glitchPopup">
+         <img id="popupMain" class="popup-main" src="./image/image1.png" alt="task popup image" />
 
-          <img class="popup-ghost popup-ghost-a" src="./image/image1.png" alt="" />
-          <img class="popup-ghost popup-ghost-b" src="./image/image1.png" alt="" />
+         <img id="popupGhostA" class="popup-ghost popup-ghost-a" src="./image/image1.png" alt="" />
+         <img id="popupGhostB" class="popup-ghost popup-ghost-b" src="./image/image1.png" alt="" />
 
-          <div class="glitch-slice slice-1">
-            <img src="./image/image1.png" alt="" />
+         <div class="glitch-slice slice-1">
+           <img class="popupSliceImg" src="./image/image1.png" alt="" />
          </div>
 
-          <div class="glitch-slice slice-2">
-            <img src="./image/image1.png" alt="" />
+         <div class="glitch-slice slice-2">
+           <img class="popupSliceImg" src="./image/image1.png" alt="" />
          </div>
 
-          <div class="glitch-slice slice-3">
-            <img src="./image/image1.png" alt="" />
+         <div class="glitch-slice slice-3">
+           <img class="popupSliceImg" src="./image/image1.png" alt="" />
          </div>
 
-          <div class="popup-noise"></div>
-          <div class="popup-scanline"></div>
+         <div class="popup-noise"></div>
+         <div class="popup-scanline"></div>
        </div>
      </div>
-
-    </div>
-  </div>
 
   <audio
     id="alarmSound"
