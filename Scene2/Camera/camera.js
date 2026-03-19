@@ -13,10 +13,21 @@ const frame = document.getElementById("frameOverlay");
 const whoInputWrap = document.getElementById("whoInputWrap");
 const whoInputText = document.getElementById("whoInputText");
 const whoCaret = document.getElementById("whoCaret");
+const glitchVideo1 = document.getElementById("glitchVideo1");
+const glitchVideo2 = document.getElementById("glitchVideo2");
+const glitchVideo3 = document.getElementById("glitchVideo3");
 
 const warningSound = new Audio("./sound/warning.mp3");
 warningSound.loop = true;
 warningSound.volume = 0.6;
+
+const wrongSound = new Audio("../Reminiscence/sound/wrong.mp3");
+wrongSound.volume = 0.7;
+wrongSound.loop = false;
+
+const correctSound = new Audio("./sound/creepy-dark.mp3");
+correctSound.volume = 1.0;
+correctSound.loop = true;
 
 let streamRef = null;
 let enabled = false;
@@ -31,15 +42,18 @@ function unlockAudio() {
   if (audioUnlocked) return;
   audioUnlocked = true;
 
-  warningSound.play()
-    .then(() => {
-      warningSound.pause();
-      warningSound.currentTime = 0;
-      warningSound.volume = 0.6;
-    })
-    .catch((err) => {
-      console.log("Audio unlock failed:", err);
-    });
+  const sounds = [warningSound, wrongSound, correctSound];
+
+  sounds.forEach((sound) => {
+    sound.play()
+      .then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+      })
+      .catch((err) => {
+        console.log("Audio unlock failed:", err);
+      });
+  });
 }
 
 function startWarningSound() {
@@ -128,6 +142,8 @@ async function enableCamera() {
     enabled = true;
 
     trigger.style.pointerEvents = "none";
+    trigger.blur();
+    trigger.style.display = "none";
 
     setTimeout(() => {
       goToStage2();
@@ -180,11 +196,10 @@ function goToStage3() {
   const errorOverlay = document.getElementById("errorOverlay");
   const glitchBars = document.getElementById("glitchBars");
 
-  stopWarningSound();
+  trigger.blur();
+  trigger.style.display = "none";
 
-  if (streamRef) {
-    streamRef.getTracks().forEach((track) => track.stop());
-  }
+  stopWarningSound();
 
   flashOverlay.classList.add("flash");
   stage.classList.add("glitch");
@@ -222,6 +237,8 @@ function activateWhoInput() {
   whoInputText.textContent = "";
   whoInputWrap.classList.remove("error");
   whoInputWrap.classList.add("active");
+
+  document.body.focus();
 }
 
 function handleWrongInput() {
@@ -242,16 +259,28 @@ function handleCorrectInput() {
 
   whoInputWrap.classList.remove("error");
 
+  // 停掉错误或警报音
+  stopWrongSound();
+  stopWarningSound();
+
+  // 播放正确后的持续音效
+  playCorrectSound();
+
   flashOverlay.classList.add("flash");
   stage.classList.add("glitch");
 
   setTimeout(() => {
     bg3.classList.remove("active");
+
     if (bg4) {
       bg4.classList.add("active");
     }
 
     whoInputWrap.classList.remove("active");
+
+    // 如果有全屏摄像头残留，也顺手关掉显示
+    video.classList.remove("fullscreen-video");
+    video.classList.remove("active");
   }, 180);
 
   setTimeout(() => {
@@ -277,7 +306,7 @@ window.addEventListener("keydown", (e) => {
       .toUpperCase();
 
     if (value === "CITY 04") {
-      handleWrongInput();
+      handleCity04Error();
       return;
     }
 
@@ -297,3 +326,135 @@ window.addEventListener("keydown", (e) => {
     whoInputWrap.classList.remove("error");
   }
 });
+
+function playWrongSound() {
+  wrongSound.currentTime = 0;
+  wrongSound.play().catch(() => {});
+}
+
+function stopWrongSound() {
+  wrongSound.pause();
+  wrongSound.currentTime = 0;
+}
+
+function handleCity04Error() {
+  const errorOverlay = document.getElementById("errorOverlay");
+  const glitchBars = document.getElementById("glitchBars");
+  const frame = document.getElementById("frameOverlay");
+
+  inputLocked = true;
+  stage3Active = false;
+
+  // 先让输入区报错
+  whoInputWrap.classList.add("error");
+  playWrongSound();
+
+  setTimeout(() => {
+    stopWrongSound();
+    flashOverlay.classList.add("flash");
+    stage.classList.add("glitch");
+    stage.classList.add("system-error");
+    errorOverlay.classList.add("active");
+    glitchBars.classList.add("active");
+
+    // 隐藏 WHO ARE YOU
+    bg3.classList.remove("active");
+    whoInputWrap.classList.remove("active");
+
+    // 清掉第二阶段 UI
+    overlay.classList.remove("active");
+    scanLine.classList.remove("active");
+    detectText.classList.remove("active", "status-white", "status-red", "flash-red", "pop");
+    if (frame) frame.classList.remove("active");
+
+    // 主摄像头全屏
+    video.classList.add("active");
+    video.classList.remove("stage1-video", "stage2-video");
+    video.classList.add("fullscreen-video");
+
+    restoreCameraForFullscreenError().then(() => {
+      // 横向撕裂条出现
+      glitchVideo1.classList.add("active", "tearing");
+      glitchVideo2.classList.add("active", "tearing");
+      glitchVideo3.classList.add("active", "tearing");
+    });
+  }, 700);
+
+  // 2 秒后再次 glitch，准备切回
+  setTimeout(() => {
+    flashOverlay.classList.add("flash");
+    stage.classList.add("glitch");
+    stage.classList.add("system-error");
+  }, 2400);
+
+  // 回到 WHO ARE YOU
+  setTimeout(() => {
+    bg3.classList.add("active");
+
+    video.classList.remove("fullscreen-video");
+    video.classList.remove("active");
+
+    glitchVideo1.classList.remove("active", "tearing");
+    glitchVideo2.classList.remove("active", "tearing");
+    glitchVideo3.classList.remove("active", "tearing");
+
+    inputBuffer = "";
+    whoInputText.textContent = "";
+
+    whoInputWrap.classList.remove("error");
+    whoInputWrap.classList.add("active");
+  }, 2600);
+
+  // 清理状态
+  setTimeout(() => {
+    flashOverlay.classList.remove("flash");
+    stage.classList.remove("glitch");
+    stage.classList.remove("system-error");
+    errorOverlay.classList.remove("active");
+    glitchBars.classList.remove("active");
+
+    inputLocked = false;
+    stage3Active = true;
+  }, 3300);
+}
+
+async function restoreCameraForFullscreenError() {
+  try {
+    if (streamRef && streamRef.active) {
+      video.srcObject = streamRef;
+      syncGlitchVideosStream();
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    streamRef = stream;
+    video.srcObject = stream;
+    syncGlitchVideosStream();
+  } catch (err) {
+    console.error("Restore fullscreen camera failed:", err);
+  }
+}
+
+function syncGlitchVideosStream() {
+  if (!streamRef) return;
+
+  glitchVideo1.srcObject = streamRef;
+  glitchVideo2.srcObject = streamRef;
+  glitchVideo3.srcObject = streamRef;
+}
+
+function playCorrectSound() {
+  correctSound.currentTime = 0;
+  correctSound.play().catch((err) => {
+    console.log("Correct sound play failed:", err);
+  });
+}
+
+function stopCorrectSound() {
+  correctSound.pause();
+  correctSound.currentTime = 0;
+}
