@@ -1,0 +1,299 @@
+const stage = document.getElementById("stage");
+const trigger = document.getElementById("cameraTrigger");
+const video = document.getElementById("cameraVideo");
+const bg1 = document.getElementById("bg1");
+const bg2 = document.getElementById("bg2");
+const bg3 = document.getElementById("bg3");
+const bg4 = document.getElementById("bg4");
+const flashOverlay = document.getElementById("flashOverlay");
+const overlay = document.getElementById("videoOverlay");
+const scanLine = document.getElementById("scanLine");
+const detectText = document.getElementById("detectText");
+const frame = document.getElementById("frameOverlay");
+const whoInputWrap = document.getElementById("whoInputWrap");
+const whoInputText = document.getElementById("whoInputText");
+const whoCaret = document.getElementById("whoCaret");
+
+const warningSound = new Audio("./sound/warning.mp3");
+warningSound.loop = true;
+warningSound.volume = 0.6;
+
+let streamRef = null;
+let enabled = false;
+let switched = false;
+let warningPlaying = false;
+let audioUnlocked = false;
+let stage3Active = false;
+let inputBuffer = "";
+let inputLocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+
+  warningSound.play()
+    .then(() => {
+      warningSound.pause();
+      warningSound.currentTime = 0;
+      warningSound.volume = 0.6;
+    })
+    .catch((err) => {
+      console.log("Audio unlock failed:", err);
+    });
+}
+
+function startWarningSound() {
+  if (warningPlaying) return;
+  warningPlaying = true;
+
+  warningSound.pause();
+  warningSound.currentTime = 0;
+  warningSound.volume = 0;
+
+  warningSound.play().catch((err) => {
+    console.log("Warning sound play failed:", err);
+  });
+
+  let v = 0;
+  const fade = setInterval(() => {
+    v += 0.05;
+    if (v >= 0.6) {
+      v = 0.6;
+      clearInterval(fade);
+    }
+    warningSound.volume = v;
+  }, 100);
+}
+
+function stopWarningSound() {
+  warningPlaying = false;
+  warningSound.pause();
+  warningSound.currentTime = 0;
+}
+
+function setDetectText(text, isRed = false) {
+  detectText.textContent = text;
+  detectText.classList.add("active");
+
+  if (isRed) {
+    detectText.classList.remove("status-white");
+    detectText.classList.add("status-red", "flash-red");
+  } else {
+    detectText.classList.remove("status-red", "flash-red");
+    detectText.classList.add("status-white");
+  }
+
+  // 👉 触发放大动画
+  detectText.classList.remove("pop"); // 重置
+  void detectText.offsetWidth;        // 强制刷新（关键！）
+  detectText.classList.add("pop");
+}
+
+function startDetectionTextSequence() {
+  setDetectText("Information detection is in progress", false);
+
+  setTimeout(() => {
+    setDetectText("Machine temperature reaches the standard", true);
+    startWarningSound();
+  }, 3000);
+
+  setTimeout(() => {
+    setDetectText("Emotional fluctuations meet the standard", true);
+  }, 6000);
+
+  setTimeout(() => {
+    setDetectText("Signs of biological abnormalities appear", true);
+
+    setTimeout(() => {
+      goToStage3();
+    }, 3000);
+
+  }, 6000);
+}
+
+async function enableCamera() {
+  if (enabled) return;
+
+  unlockAudio();
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    streamRef = stream;
+    video.srcObject = stream;
+    video.classList.add("active");
+    enabled = true;
+
+    trigger.style.pointerEvents = "none";
+
+    setTimeout(() => {
+      goToStage2();
+    }, 3000);
+
+  } catch (err) {
+    console.error("Camera error:", err);
+    alert("Unable to access the camera.");
+  }
+}
+
+function goToStage2() {
+  if (switched) return;
+  switched = true;
+
+  flashOverlay.classList.add("flash");
+  stage.classList.add("glitch");
+
+  setTimeout(() => {
+    bg1.classList.remove("active");
+    bg2.classList.add("active");
+
+    video.classList.remove("stage1-video");
+    video.classList.add("stage2-video");
+
+    overlay.classList.add("active");
+    frame.classList.add("active");
+    scanLine.classList.add("active");
+
+    startDetectionTextSequence();
+  }, 140);
+
+  setTimeout(() => {
+    stage.classList.remove("glitch");
+    flashOverlay.classList.remove("flash");
+  }, 700);
+}
+
+trigger.addEventListener("click", enableCamera);
+
+window.addEventListener("beforeunload", () => {
+  if (streamRef) {
+    streamRef.getTracks().forEach((track) => track.stop());
+  }
+  stopWarningSound();
+});
+
+function goToStage3() {
+  const frame = document.getElementById("frameOverlay");
+  const errorOverlay = document.getElementById("errorOverlay");
+  const glitchBars = document.getElementById("glitchBars");
+
+  stopWarningSound();
+
+  if (streamRef) {
+    streamRef.getTracks().forEach((track) => track.stop());
+  }
+
+  flashOverlay.classList.add("flash");
+  stage.classList.add("glitch");
+  stage.classList.add("system-error");
+  errorOverlay.classList.add("active");
+  glitchBars.classList.add("active");
+
+  setTimeout(() => {
+    bg2.classList.remove("active");
+    bg3.classList.add("active");
+
+    video.classList.remove("active");
+    overlay.classList.remove("active");
+    frame.classList.remove("active");
+    scanLine.classList.remove("active");
+    detectText.classList.remove("active", "status-white", "status-red", "flash-red", "pop");
+  }, 180);
+
+  setTimeout(() => {
+    flashOverlay.classList.remove("flash");
+    stage.classList.remove("glitch");
+    stage.classList.remove("system-error");
+    errorOverlay.classList.remove("active");
+    glitchBars.classList.remove("active");
+
+    activateWhoInput();
+  }, 900);
+}
+
+function activateWhoInput() {
+  stage3Active = true;
+  inputLocked = false;
+  inputBuffer = "";
+
+  whoInputText.textContent = "";
+  whoInputWrap.classList.remove("error");
+  whoInputWrap.classList.add("active");
+}
+
+function handleWrongInput() {
+  whoInputWrap.classList.add("error");
+
+  setTimeout(() => {
+    if (!inputLocked) {
+      whoInputWrap.classList.remove("error");
+      inputBuffer = "";
+      whoInputText.textContent = "";
+    }
+  }, 1400);
+}
+
+function handleCorrectInput() {
+  inputLocked = true;
+  stage3Active = false;
+
+  whoInputWrap.classList.remove("error");
+
+  flashOverlay.classList.add("flash");
+  stage.classList.add("glitch");
+
+  setTimeout(() => {
+    bg3.classList.remove("active");
+    if (bg4) {
+      bg4.classList.add("active");
+    }
+
+    whoInputWrap.classList.remove("active");
+  }, 180);
+
+  setTimeout(() => {
+    flashOverlay.classList.remove("flash");
+    stage.classList.remove("glitch");
+  }, 700);
+}
+
+window.addEventListener("keydown", (e) => {
+  if (!stage3Active || inputLocked) return;
+
+  if (e.key === "Backspace") {
+    inputBuffer = inputBuffer.slice(0, -1);
+    whoInputText.textContent = inputBuffer;
+    whoInputWrap.classList.remove("error");
+    return;
+  }
+
+  if (e.key === "Enter") {
+    const value = inputBuffer
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+
+    if (value === "CITY 04") {
+      handleWrongInput();
+      return;
+    }
+
+    if (value.length > 0) {
+      handleCorrectInput();
+      return;
+    }
+
+    return;
+  }
+
+  if (/^[a-zA-Z0-9 ]$/.test(e.key)) {
+    if (inputBuffer.length >= 18) return;
+
+    inputBuffer += e.key.toUpperCase();
+    whoInputText.textContent = inputBuffer;
+    whoInputWrap.classList.remove("error");
+  }
+});

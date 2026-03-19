@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera</title>
+  <link rel="stylesheet" href="camera.css" />
+</head>
+<body>
+  <div class="stage" id="stage">
+     <!-- 第一张背景 -->
+     <img class="bg bg-1 active" id="bg1" src="./image/camera-bg.png" alt="camera background 1" />
+
+     <!-- 第二张背景 -->
+     <img class="bg bg-2" id="bg2" src="./image/camera-stage2.png" alt="camera background 2" />
+     <img class="bg bg-3" id="bg3" src="./image/whoareyou-bg.png" alt="" />
+     <img class="bg bg-4" id="bg4" src="./image/memory-bg.png" alt="" />
+
+     <!-- 摄像头 -->
+     <video id="cameraVideo" class="camera-video stage1-video" autoplay playsinline muted></video>
+
+     <!-- 第一步透明按钮 -->
+     <button id="cameraTrigger" class="camera-trigger" aria-label="Enable camera"></button>
+
+     <!-- 闪动层 -->
+     <div id="flashOverlay" class="flash-overlay"></div>
+
+     <!-- 黑色遮罩 -->
+     <div id="videoOverlay" class="video-overlay"></div>
+
+     <video id="cameraVideo" class="camera-video stage1-video" autoplay playsinline muted></video>
+
+     <div id="videoOverlay" class="video-overlay"></div>
+
+     <div id="scanLine" class="scan-line"></div>
+
+     <img id="frameOverlay" class="frame-overlay" src="./image/frame.svg" alt="" />
+
+     <video id="cameraVideo" class="camera-video stage1-video" autoplay playsinline muted></video>
+
+     <div id="videoOverlay" class="video-overlay"></div>
+
+     <div id="scanLine" class="scan-line"></div>
+
+     <div id="detectText" class="detect-text"></div>
+
+     <img id="frameOverlay" class="frame-overlay" src="./image/frame.svg" alt="" />
+
+     <!-- SVG 框（只在第二阶段显示） -->
+     <img id="frameOverlay" class="frame-overlay" src="./image/frame.svg" />
+     <div id="errorOverlay" class="error-overlay"></div>
+     <div id="glitchBars" class="glitch-bars"></div>
+     <div id="whoInputWrap" class="who-input-wrap">
+         <div id="whoInputText" class="who-input-text"></div>
+         <div id="whoCaret" class="who-caret"></div>
+     </div>
+ </div>
+
+  <script src="camera.js"></script>
+</body>
+</html>
