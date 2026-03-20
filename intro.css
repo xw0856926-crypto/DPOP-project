@@ -1,0 +1,750 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #09040f;
+  font-family: Arial, sans-serif;
+}
+
+/* 固定舞台：永远是 1440 × 1024 */
+.stage {
+  position: absolute;
+  width: 1440px;
+  height: 1024px;
+
+  left: 50%;
+  top: 50%;
+  margin-left: -720px;  /* 1440 / 2 */
+  margin-top: -512px;   /* 1024 / 2 */
+
+  overflow: hidden;
+  background: #000;
+}
+
+/* 背景图直接写在 HTML 里 */
+.bg-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 1024px;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+/* 氛围层 */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(18, 8, 28, 0.06) 0%,
+      rgba(0, 0, 0, 0.10) 58%,
+      rgba(0, 0, 0, 0.40) 100%
+    );
+  pointer-events: none;
+  z-index: 1; 
+}
+
+/* 标题容器 */
+.title-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.title-glitch-wrap {
+  position: absolute;
+  left: 185px;
+  top: 269px;
+  width: 1070px;
+  height: auto;
+}
+
+.base-title {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1070px;
+  height: auto;
+  display: block;
+  z-index: 3;
+
+  opacity: 0;
+  transform: translateY(140px);
+  animation: titleRise 2s ease-out forwards;
+}
+
+.glitch-slice {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1010px;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  z-index: 4;
+
+  opacity: 0;
+}
+
+/* 倒影图：这里直接按 Figma 调 */
+.reflection-img {
+  position: absolute;
+  left: 194px;
+  top: 476px;
+  width: 1035px;
+  height: auto;
+  display: block;
+  z-index: 1;
+
+  clip-path: inset(0 0 100% 0);  /* 👈 初始：全部被裁掉 */
+
+  animation: reflectionReveal 1.2s ease-out forwards;
+  animation-delay: 1.6s;
+}
+
+.slice-1 {
+  clip-path: inset(18% 0 68% 0);
+  animation: sliceFlash1 1.2s steps(2, end) 2s infinite;
+  animation-duration: 1.2s;
+}
+
+.slice-2 {
+  clip-path: inset(42% 0 40% 0);
+  animation: sliceFlash2 1.1s steps(2, end) 2.1s infinite;
+  animation-duration: 1.5s;
+}
+
+.slice-3 {
+  clip-path: inset(70% 0 12% 0);
+  animation: sliceFlash3 1.3s steps(2, end) 2.2s infinite;
+  animation-duration: 1.8s;
+}
+
+/* 开始按钮 */
+@font-face {
+  font-family: "CascadiaCode";
+  src: url("assets/fonts/CascadiaCode.ttf") format("truetype");
+  font-weight: 700;   
+  font-style: normal;
+}
+
+.start-btn {
+  position: absolute;
+  left: 387px;
+  top: 848px;
+  width: 665px;
+  height: 122px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 10;
+
+  animation: buttonShow 0.8s ease-out forwards;
+  animation-delay: 2.7s;
+}
+
+.start-btn-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.start-btn-text {
+  position: absolute;
+  left: 49%;
+  top: 52%;
+  transform: translate(-50%, -56%);
+
+  font-family: "CascadiaCode", monospace;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 0em;
+  color: #EA34F7;
+  white-space: nowrap;
+  pointer-events: none;
+
+}
+
+.start-btn:hover .start-btn-frame {
+  filter:
+    drop-shadow(0 0 8px rgba(121, 41, 255, 0.35))
+    drop-shadow(0 0 18px rgba(121, 41, 255, 0.18));
+}
+
+.start-btn:hover .start-btn-text {
+  text-shadow:
+    0 0 10px rgba(207, 88, 255, 0.35),
+    0 0 22px rgba(207, 88, 255, 0.15);
+}
+
+.start-btn:active {
+  transform: translateY(1px);
+}
+
+@keyframes titleRise {
+  0% {
+    opacity: 0;
+    transform: translateY(140px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reflectionReveal {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.2;
+  }
+  100% {
+    clip-path: inset(0 0 0% 0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes buttonShow {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sliceFlash1 {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  72% {
+    opacity: 0.8;
+    transform: translateX(-6px);
+  }
+
+  75% {
+    opacity: 0.5;
+    transform: translateX(5px);
+  }
+
+  78% {
+    opacity: 0.7;
+    transform: translateX(-3px);
+  }
+
+  80% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceFlash2 {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  67% {
+    opacity: 0.85;
+    transform: translateX(8px);
+  }
+
+  70% {
+    opacity: 0.4;
+    transform: translateX(-6px);
+  }
+
+  73% {
+    opacity: 0.7;
+    transform: translateX(3px);
+  }
+
+  75% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceFlash3 {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  62% {
+    opacity: 0.7;
+    transform: translateX(-5px);
+  }
+
+  66% {
+    opacity: 0.45;
+    transform: translateX(7px);
+  }
+
+  70% {
+    opacity: 0.6;
+    transform: translateX(-2px);
+  }
+
+  72% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "CascadiaCode";
+  src: url("assets/fonts/CascadiaCode.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #09040f;
+  font-family: Arial, sans-serif;
+}
+
+/* 固定舞台 */
+.stage {
+  position: absolute;
+  width: 1440px;
+  height: 1024px;
+  left: 50%;
+  top: 50%;
+  margin-left: -720px;
+  margin-top: -512px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* 每一页都是同一舞台里的一个层 */
+.screen {
+  position: absolute;
+  inset: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ========== 第一页原有内容 ========== */
+
+.bg-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 1024px;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(18, 8, 28, 0.06) 0%,
+      rgba(0, 0, 0, 0.10) 58%,
+      rgba(0, 0, 0, 0.40) 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.title-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.title-glitch-wrap {
+  position: absolute;
+  left: 185px;
+  top: 268px;
+  width: 1070px;
+}
+
+.base-title {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1070px;
+  display: block;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(140px);
+  animation: titleRise 2s ease-out forwards;
+}
+
+.glitch-slice {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1010px;
+  display: block;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+}
+
+.slice-1 {
+  clip-path: inset(18% 0 68% 0);
+  animation: sliceFlash1 1.2s steps(2, end) 2s infinite;
+}
+
+.slice-2 {
+  clip-path: inset(42% 0 40% 0);
+  animation: sliceFlash2 1.1s steps(2, end) 2.1s infinite;
+}
+
+.slice-3 {
+  clip-path: inset(70% 0 12% 0);
+  animation: sliceFlash3 1.3s steps(2, end) 2.2s infinite;
+}
+
+.reflection-img {
+  position: absolute;
+  left: 195px;
+  top: 476px;
+  width: 1033px;
+  display: block;
+  z-index: 2;
+  clip-path: inset(0 0 100% 0);
+  animation: reflectionReveal 1.2s ease-out forwards;
+  animation-delay: 1.6s;
+}
+
+.start-btn {
+  position: absolute;
+  left: 442px;
+  top: 849px;
+  width: 556px;
+  height: 117.57px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 10;
+  animation: buttonShow 0.8s ease-out forwards;
+  animation-delay: 2.7s;
+}
+
+.start-btn-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.start-btn-text {
+  position: absolute;
+  left: 49%;
+  top: 52%;
+  transform: translate(-50%, -56%);
+  font-family: "CascadiaCode", monospace;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #cf58ff;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(207, 88, 255, 0.18);
+}
+
+.start-btn:hover .start-btn-frame {
+  filter:
+    drop-shadow(0 0 8px rgba(121, 41, 255, 0.35))
+    drop-shadow(0 0 18px rgba(121, 41, 255, 0.18));
+}
+
+.start-btn:hover .start-btn-text {
+  text-shadow:
+    0 0 10px rgba(207, 88, 255, 0.35),
+    0 0 22px rgba(207, 88, 255, 0.15);
+}
+
+/* ========== 第二页 introduction ========== */
+
+.screen-introduction {
+  z-index: 30;
+  background: #000;
+}
+
+.intro-page-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 1024px;
+  object-fit: cover;
+  display: block;
+}
+
+.intro-frame-img {
+  position: absolute;
+  left: 80px;
+  top: 80px;
+  width: 1280px;
+  height: 668px;
+  object-fit: cover;
+  display: block;
+
+  transform: translateY(280px);
+  opacity: 0;
+}
+
+.intro-frame-img.rise-in {
+  animation: introFrameRise 1.15s ease-out forwards;
+}
+
+/* ========== 动画 ========== */
+
+@keyframes titleRise {
+  0% {
+    opacity: 0;
+    transform: translateY(140px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reflectionReveal {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes buttonShow {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introFrameRise {
+  0% {
+    transform: translateY(280px);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sliceFlash1 {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  72% {
+    opacity: 0.8;
+    transform: translateX(-6px);
+  }
+  75% {
+    opacity: 0.5;
+    transform: translateX(5px);
+  }
+  78% {
+    opacity: 0.7;
+    transform: translateX(-3px);
+  }
+  80% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceFlash2 {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  67% {
+    opacity: 0.85;
+    transform: translateX(8px);
+  }
+  70% {
+    opacity: 0.4;
+    transform: translateX(-6px);
+  }
+  73% {
+    opacity: 0.7;
+    transform: translateX(3px);
+  }
+  75% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceFlash3 {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  62% {
+    opacity: 0.7;
+    transform: translateX(-5px);
+  }
+  66% {
+    opacity: 0.45;
+    transform: translateX(7px);
+  }
+  70% {
+    opacity: 0.6;
+    transform: translateX(-2px);
+  }
+  72% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@font-face {
+  font-family: "CascadiaCodeRegular";
+  src: url("assets/fonts/CascadiaCode.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+.intro-body-text {
+  position: absolute;
+  left: 184px;
+  top: 254px;
+  width: 1071px;
+  height: 360;
+
+  font-family: "CascadiaCodeRegular", monospace;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 33px;
+  color: rgba(255, 255, 255, 1);
+
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  z-index: 40;
+  opacity: 0;
+
+}
+
+/* introduction 页里的 Start Working 按钮 */
+.work-btn {
+  position: absolute;
+  left: 480px;
+  top: 839px;
+  width: 481.59px;
+  height: 102px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 50;
+
+  opacity: 0;
+  transform: translateY(120px);
+}
+
+.work-btn-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.work-btn-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -56%);
+
+  font-family: "CascadiaCode", monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.work-btn.rise-in {
+  animation: workBtnRise 0.9s ease-out forwards;
+}
+
+.work-btn:hover .work-btn-frame {
+  filter:
+    drop-shadow(0 0 8px rgba(161, 252, 254, 0.35))
+    drop-shadow(0 0 18px rgba(161, 252, 254, 0.18));
+}
+
+.work-btn:hover .work-btn-text {
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.18),
+    0 0 14px rgba(161, 252, 254, 0.12);
+}
+
+@keyframes workBtnRise {
+  0% {
+    opacity: 0;
+    transform: translateY(120px);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

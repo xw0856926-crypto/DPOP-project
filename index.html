@@ -1,20 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Intro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CITY 04</title>
+  <link rel="stylesheet" href="intro.css" />
 </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CITY 04</title>
+  <link rel="stylesheet" href="intro.css" />
+</head>
+<audio id="startBgm" src="assets/audio/start.mp3" preload="auto"></audio>
+<audio id="glitchSfx" src="assets/audio/electric-sparks.mp3" preload="auto"></audio>
+<audio id="introBgm" src="assets/audio/introduction-atmosphere.mp3" preload="auto"></audio>
 <body>
+  <div class="stage">
 
-  <h1>WELCOME</h1>
+    <!-- 第一页：开场页 -->
+    <div class="screen screen-intro" id="screenIntro">
+      <img class="bg-img" src="assets/image/intro-bg.png" alt="background" />
+      <div class="overlay"></div>
 
-  <button onclick="startGame()">ENTER</button>
+      <div class="title-wrap">
+        <div class="title-glitch-wrap">
+          <img class="title-img base-title" src="assets/image/title-main.png" alt="CITY 04" />
+          <img class="title-img glitch-slice slice-1" src="assets/image/title-main.png" alt="" />
+          <img class="title-img glitch-slice slice-2" src="assets/image/title-main.png" alt="" />
+          <img class="title-img glitch-slice slice-3" src="assets/image/title-main.png" alt="" />
+        </div>
 
-  <script>
-    function startGame() {
-      window.location.href = "main.html";
-    }
-  </script>
+        <img class="reflection-img" src="assets/image/title-reflection.png" alt="CITY 04 reflection" />
+      </div>
 
+      <button class="start-btn" id="startBtn" type="button">
+        <img class="start-btn-frame" src="assets/image/start-frame.svg" alt="" />
+        <span class="start-btn-text">START GAME</span>
+      </button>
+    </div>
+
+    <!-- 第二页：introduction页 -->
+   <div class="screen screen-introduction hidden" id="screenIntroduction">
+     <img class="intro-page-img" src="assets/image/introduction-page.png" alt="Introduction page" />
+     <img class="intro-frame-img" id="introFrame" src="assets/image/introduction-frame.png" alt="Introduction frame" />
+
+     <div class="intro-body-text" id="introBodyText"></div>
+     <button class="work-btn hidden" id="workBtn" type="button">
+       <img class="work-btn-frame" src="assets/image/outcome-frame.svg" alt="" />
+       <span class="work-btn-text">Start Working</span>
+     </button>
+   </div>
+
+  </div>
+
+  <script src="intro.js"></script>
 </body>
+</html>
 </html>

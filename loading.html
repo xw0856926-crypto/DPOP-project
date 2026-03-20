@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading</title>
+  <link rel="stylesheet" href="./loading.css" />
+</head>
+<body>
+  <div class="stage">
+    <div class="scene">
+      <img src="./assets/image/loading-main.png" alt="background" class="bg" />
+
+      <!-- 人物 -->
+      <img
+        src="./assets/image/loading-walkers.png"
+        alt="walkers"
+        class="walkers"
+        id="walkers"
+      />
+
+      <!-- 隐藏路径：只给 JS 用 -->
+      <svg
+        class="motion-svg"
+        id="motionSvg"
+        width="1256"
+        height="135"
+        viewBox="0 0 1256 135"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          id="walkPath"
+          d="M1.14404 131.5C104.977 88.6667 373.444 3 616.644 3C920.644 3 1207.14 84.5 1254.14 108"
+          fill="none"
+          stroke="transparent"
+          stroke-width="6"
+        />
+      </svg>
+
+      <div class="loading-ui">
+        <div class="loading-text">LOADING...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./loading.js"></script>
+</body>
+</html>
