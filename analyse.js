@@ -6,6 +6,7 @@ const analyseStatus = document.getElementById("analyseStatus");
 const outcomeBox = document.getElementById("outcomeBox");
 const outcomeText = document.getElementById("outcomeText");
 
+
 const voiceAudio = {
   1: new Audio("assets/audio/voice_clue_1.wav"),
   2: new Audio("assets/audio/voice_clue_2.wav"),
@@ -13,16 +14,16 @@ const voiceAudio = {
 };
 
 const outcomeMap = {
-  1: "The bad weather has led to an increase in labor costs and a large number of workers have been laid off.",
-  2: "The production work of enterprises in the city is proceeding step by step in an orderly manner.",
-  3: "The number of the workforce in the city has been steadily increasing."
+  1: "“The current labor costs are too low for the company's profit. I hope you can understand this decision.”",
+  2: "“Was this your former company? And it has now gone public.”",
+  3: "“If all of you have been laid off, then who is currently working in the office?”"
 };
 
 const finishedVoices = new Set();
 let hasRedirected = false;
 
-// ✅ 正确路径：因为 turth.html 在 truth_page 文件夹里
-const NEXT_PAGE = "truth_page/turth.html";
+// ✅ 正确路径：因为 truth.html 在 truth_page 文件夹里
+const NEXT_PAGE = "truth_page/truth.html";
 
 let currentVoice = null;
 
@@ -131,7 +132,7 @@ function startAnalysis(voiceId){
 
    // 想让用户看到 OUTCOME 一下再跳就保留 800ms
    setTimeout(() => {
-    window.location.href = NEXT_PAGE;
+     startAnalyseToTruthTransition();
    }, 800);
   }
   // ✅ 右侧立刻清空（不展示 finished 停留）
@@ -229,4 +230,85 @@ function startWave() {
 function stopWave() {
   if (waveRAF) cancelAnimationFrame(waveRAF);
   waveRAF = null;
+}
+
+function startAnalyseToTruthTransition() {
+  document.body.classList.add("scene-tear-transition");
+
+  const tearOverlay = document.createElement("div");
+  tearOverlay.className = "tear-overlay";
+
+  let currentTop = 0;
+
+  while (currentTop < 100) {
+    const slice = document.createElement("div");
+    slice.className = "tear-slice";
+
+    let height;
+    const rand = Math.random();
+
+    if (rand < 0.5) {
+      height = 2 + Math.random() * 3;
+    } else if (rand < 0.8) {
+      height = 4 + Math.random() * 6;
+    } else {
+      height = 8 + Math.random() * 10;
+    }
+
+    const gap = Math.random() < 0.7
+      ? Math.random() * 2
+      : Math.random() * 6;
+
+    const top = currentTop + Math.random() * 1.5;
+
+    const shift = -80 + Math.random() * 160;
+
+    const delay = Math.random() * 0.2;
+    const duration = 0.06 + Math.random() * 0.18;
+
+    slice.style.top = `${top}%`;
+    slice.style.height = `${height}%`;
+
+    let finalShift = shift;
+
+    // ✅ 反方向撕裂
+    if (Math.random() < 0.35) {
+      finalShift = -shift;
+    }
+
+    if (Math.random() < 0.12) {
+      finalShift *= 1.3;
+    }
+
+    slice.style.setProperty("--tear-shift", `${finalShift}px`);
+    slice.style.setProperty("--tear-delay", `${delay}s`);
+    slice.style.setProperty("--tear-duration", `${duration}s`);
+
+    if (Math.random() < 0.25) {
+      slice.style.opacity = 0.4 + Math.random() * 0.6;
+    }
+
+    tearOverlay.appendChild(slice);
+
+    currentTop += height + gap;
+  }
+
+  document.body.appendChild(tearOverlay);
+
+  // ✅ 黑闪 + 白噪点
+  setTimeout(() => {
+    const blackout = document.createElement("div");
+    blackout.className = "scene-blackout-flash";
+
+    const noise = document.createElement("div");
+    noise.className = "scene-noise-flash";
+
+    blackout.appendChild(noise);
+    document.body.appendChild(blackout);
+  }, 700);
+
+  // ✅ 跳转
+  setTimeout(() => {
+    window.location.href = NEXT_PAGE;
+  }, 900);
 }

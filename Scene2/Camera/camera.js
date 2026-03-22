@@ -122,7 +122,7 @@ function startDetectionTextSequence() {
       goToStage3();
     }, 3000);
 
-  }, 6000);
+  }, 9000);
 }
 
 async function enableCamera() {
@@ -188,7 +188,10 @@ window.addEventListener("beforeunload", () => {
   if (streamRef) {
     streamRef.getTracks().forEach((track) => track.stop());
   }
+
   stopWarningSound();
+  stopWrongSound();
+  stopCorrectSound();
 });
 
 function goToStage3() {
@@ -281,12 +284,21 @@ function handleCorrectInput() {
     // 如果有全屏摄像头残留，也顺手关掉显示
     video.classList.remove("fullscreen-video");
     video.classList.remove("active");
+
+    glitchVideo1.classList.remove("active", "tearing");
+    glitchVideo2.classList.remove("active", "tearing");
+    glitchVideo3.classList.remove("active", "tearing");
   }, 180);
 
   setTimeout(() => {
     flashOverlay.classList.remove("flash");
     stage.classList.remove("glitch");
   }, 700);
+
+  // 在 THE MEMORY HAS RETURNED 页面停留一会儿再故障跳转
+  setTimeout(() => {
+    goToScene3WithGlitch();
+  }, 2600);
 }
 
 window.addEventListener("keydown", (e) => {
@@ -457,4 +469,30 @@ function playCorrectSound() {
 function stopCorrectSound() {
   correctSound.pause();
   correctSound.currentTime = 0;
+}
+
+function goToScene3WithGlitch() {
+  const errorOverlay = document.getElementById("errorOverlay");
+  const glitchBars = document.getElementById("glitchBars");
+
+  glitchVideo1.classList.remove("active", "tearing");
+  glitchVideo2.classList.remove("active", "tearing");
+  glitchVideo3.classList.remove("active", "tearing");
+
+  stage.classList.add("glitch");
+
+  setTimeout(() => {
+    flashOverlay.classList.add("flash");
+    stage.classList.add("system-error");
+    errorOverlay.classList.add("active");
+    glitchBars.classList.add("active");
+  }, 400);
+
+  setTimeout(() => {
+    document.body.style.background = "#000";
+  }, 900);
+
+  setTimeout(() => {
+    window.location.href = "../../Scene3/Scene3.html";
+  }, 1100);
 }

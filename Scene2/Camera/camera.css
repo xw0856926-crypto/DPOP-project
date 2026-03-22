@@ -206,12 +206,10 @@ body {
 .scan-line {
   position: absolute;
   left: 50%;
-  top: 52%;
+  top: 55%;
   transform: translate(-50%, -50%);
-
-  width: 72.5%;
-  height: 66.5%;
-
+  width: 74.5%;
+  height: 72.5%;
   pointer-events: none;
   z-index: 6;
   opacity: 0;
@@ -411,7 +409,7 @@ body {
 }
 
 .glitch-bars.active {
-  animation: barsFlicker 0.16s steps(1, end) infinite;
+  animation: barsFlicker 0.16s steps(1, end) 6;
 }
 
 @keyframes barsFlicker {
@@ -427,7 +425,9 @@ body {
 
 /* 切到 WHO ARE YOU 时让整个舞台更明显抖动一点 */
 .stage.system-error {
-  animation: systemErrorShake 0.7s steps(1, end) 1;
+  animation:
+    stageGlitch 0.28s linear 2,
+    systemErrorShake 0.7s steps(1, end) 1;
 }
 
 @keyframes systemErrorShake {
@@ -513,17 +513,6 @@ body {
   0% { opacity: 1; }
   50% { opacity: 0.35; }
   100% { opacity: 1; }
-}
-
-.fullscreen-video {
-  left: 0 !important;
-  top: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  transform: none !important;
-  object-fit: cover;
-  opacity: 1 !important;
-  z-index: 3;
 }
 
 .fullscreen-video {
@@ -779,3 +768,4 @@ body {
       drop-shadow(6px 0 0 rgba(186, 120, 255, 0.12));
   }
 }
+
