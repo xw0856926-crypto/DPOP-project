@@ -14,6 +14,11 @@ const correctSfx = document.getElementById("correctSfx");
 
 const introBodyText = document.getElementById("introBodyText");
 
+const curtainOverlay = document.getElementById("curtainOverlay");
+
+let hasEnteredIntro = false;
+let glitchSfxTimer = null;
+
 // 新增元素
 const introDim = document.getElementById("introDim");
 const messagePanel = document.getElementById("messagePanel");
@@ -59,6 +64,61 @@ function fitStage() {
 
 window.addEventListener("resize", fitStage);
 window.addEventListener("load", fitStage);
+
+function fadeInAudio(audio, target = 0.6, step = 0.04, interval = 80) {
+  audio.volume = 0;
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch((err) => {
+      console.log("Audio play failed:", err);
+    });
+  }
+
+  const timer = setInterval(() => {
+    if (audio.volume < target) {
+      audio.volume = Math.min(target, audio.volume + step);
+    } else {
+      clearInterval(timer);
+    }
+  }, interval);
+}
+
+function openCurtain() {
+  if (hasEnteredIntro) return;
+  hasEnteredIntro = true;
+
+  // 先让首页动画正式开始
+  screenIntro.classList.remove("intro-waiting");
+  screenIntro.classList.remove("intro-started");
+  void screenIntro.offsetWidth; // 强制重排，确保动画从头触发
+  screenIntro.classList.add("intro-started");
+
+  // 再打开遮罩
+  curtainOverlay.classList.add("open");
+
+  // 此刻开始首页音乐
+  startBgm.loop = true;
+  fadeInAudio(startBgm, 0.6, 0.05, 80);
+
+  // 此刻开始电流音
+    glitchSfx.volume = 0.3;
+  glitchSfx.loop = true;
+  glitchSfx.currentTime = 0;
+
+  // 等标题升起后、切片故障开始时再播
+  glitchSfxTimer = setTimeout(() => {
+    glitchSfx.play().catch(() => {
+      console.log("Glitch SFX play failed.");
+    });
+  }, 2500);
+
+  setTimeout(() => {
+    curtainOverlay.classList.add("finished");
+  }, 1100);
+}
+
+curtainOverlay.addEventListener("click", openCurtain);
 
 // ===== 第一段：原本 introduction 正文 =====
 const introTextContent = `In the year 2333, it is a fully AI era. People are no longer
@@ -757,52 +817,45 @@ function clearMessageUI() {
 
 // ===== Start Game =====
 startBtn.addEventListener("click", () => {
-  // 停止首页电流音
+ 
+ if (glitchSfxTimer) {
+    clearTimeout(glitchSfxTimer);
+    glitchSfxTimer = null;
+ }
+  
   glitchSfx.pause();
   glitchSfx.currentTime = 0;
 
-  // 首页 BGM 淡出
   fadeOutAudio(startBgm, 800);
 
-  // 重置 introduction BGM
   introBgm.pause();
   introBgm.currentTime = 0;
   introBgm.volume = 1;
   introBgm.loop = true;
 
-  // 停止首页 glitch 切片
-  document.querySelectorAll(".glitch-slice").forEach((el) => {
-    el.style.animation = "none";
-  });
+  // 停掉首页标题动画
+  screenIntro.classList.remove("intro-started");
 
-  // 切到 introduction
   screenIntro.classList.add("hidden");
   screenIntroduction.classList.remove("hidden");
 
-  // 播放 introduction BGM
   introBgm.play().catch(() => {
     console.log("Introduction BGM autoplay was blocked.");
   });
 
-  // 蓝框上升
   void introFrame.offsetWidth;
   introFrame.classList.add("rise-in");
 
-  // 正文重置
   introBodyText.textContent = "";
   introBodyText.style.opacity = "0";
 
-  // 按钮先隐藏
   workBtn.classList.add("hidden");
   workBtn.classList.remove("rise-in");
 
-  // 重置黑色信息效果状态
   resetMessageState();
 
-  // 先打原本正文
   setTimeout(() => {
     typeWriter(introBodyText, introTextContent, 22, () => {
-      // 原正文打完，停顿后进入黑面板效果
       setTimeout(() => {
         startMessageSequence();
       }, 700);
@@ -879,23 +932,6 @@ workBtn.addEventListener("click", () => {
   openNameEntry();
 });
 
-// ===== 页面加载 =====
-window.addEventListener("load", () => {
-  startBgm.volume = 0.6;
-  startBgm.loop = true;
-  startBgm.play().catch(() => {
-    console.log("Autoplay was blocked by the browser.");
-  });
-
-  glitchSfx.volume = 0.3;
-  glitchSfx.loop = true;
-
-  setTimeout(() => {
-    glitchSfx.play().catch(() => {
-      console.log("Glitch SFX autoplay was blocked.");
-    });
-  }, 2000);
-});
 
 function openNameEntry() {
   clearMessageUI();

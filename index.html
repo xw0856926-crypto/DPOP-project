@@ -20,8 +20,18 @@
   <div class="stage-shell">
     <div class="stage">
 
+      <!-- 开场遮罩：上下分裂 -->
+      <div class="curtain-overlay" id="curtainOverlay">
+        <div class="curtain-half curtain-top"></div>
+        <div class="curtain-half curtain-bottom"></div>
+
+        <div class="curtain-center" id="curtainCenter">
+          <div class="curtain-hint">CLICK TO ENTER</div>
+       </div>
+     </div>
+
       <!-- 第一页：开场页 -->
-      <div class="screen screen-intro" id="screenIntro">
+      <div class="screen screen-intro intro-waiting" id="screenIntro">
         <img class="bg-img" src="assets/image/intro-bg.png" alt="background" />
         <div class="overlay"></div>
 

@@ -256,17 +256,17 @@ function handleWrongInput() {
   }, 1400);
 }
 
-function handleCorrectInput() {
+function handleCorrectInput(playerName) {
+  localStorage.setItem("playerName", playerName);
+
   inputLocked = true;
   stage3Active = false;
 
   whoInputWrap.classList.remove("error");
 
-  // 停掉错误或警报音
   stopWrongSound();
   stopWarningSound();
 
-  // 播放正确后的持续音效
   playCorrectSound();
 
   flashOverlay.classList.add("flash");
@@ -281,7 +281,6 @@ function handleCorrectInput() {
 
     whoInputWrap.classList.remove("active");
 
-    // 如果有全屏摄像头残留，也顺手关掉显示
     video.classList.remove("fullscreen-video");
     video.classList.remove("active");
 
@@ -295,7 +294,6 @@ function handleCorrectInput() {
     stage.classList.remove("glitch");
   }, 700);
 
-  // 在 THE MEMORY HAS RETURNED 页面停留一会儿再故障跳转
   setTimeout(() => {
     goToScene3WithGlitch();
   }, 2600);
@@ -323,9 +321,9 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (value.length > 0) {
-      handleCorrectInput();
+      handleCorrectInput(value);
       return;
-    }
+   }
 
     return;
   }
