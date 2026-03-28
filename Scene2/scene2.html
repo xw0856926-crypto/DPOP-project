@@ -52,6 +52,12 @@
      <!-- task2 -->
      <section class="scene" id="task2">
         <img class="bg-img" src="./image/task2-bg.png" alt="task2 background" />
+        <div class="timer-panel">
+         <img
+           src="./image/time-left-panel.png"
+           alt="time left panel"
+         />
+       </div>
      </section>
 
      <!-- outcome2 -->
@@ -83,6 +89,12 @@
      <!-- task3 -->
      <section class="scene" id="task3">
        <img class="bg-img" src="./image/task3-bg.png" alt="task3 background" />
+        <div class="timer-panel">
+         <img
+           src="./image/time-left-panel.png"
+           alt="time left panel"
+         />
+       </div>
      </section>
 
      <!-- outcome3 -->
@@ -144,6 +156,28 @@
     loop
     preload="auto"
   ></audio>
+
+  <!-- ✅ 背景环境音 -->
+ <audio
+   id="bgmAmbient"
+   src="./sound/ambient-loop.mp3"
+   loop
+   preload="auto"
+ ></audio>
+
+ <!-- ✅ 故障音 -->
+ <audio
+   id="bgmGlitch"
+   src="./sound/glitch.mp3"
+   loop
+   preload="auto"
+ ></audio>
+
+ <audio
+   id="popupSound"
+   src="./sound/electric-words.mp3"
+   preload="auto"
+ ></audio>
 
   <script src="./scene2.js"></script>
 </body>

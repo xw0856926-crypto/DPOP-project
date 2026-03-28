@@ -79,6 +79,47 @@ const laterVoicePool = [
 /* 前 8 句高度 */
 const introTopPositions = [10, 19, 29, 40, 51, 62, 73, 84];
 
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
+
+async function restoreBgmState() {
+  const ambientTime = parseFloat(sessionStorage.getItem("bgmAmbientTime") || "0");
+  const ambientVolume = parseFloat(sessionStorage.getItem("bgmAmbientVolume") || "0.45");
+  const ambientPlaying = sessionStorage.getItem("bgmAmbientPlaying") === "true";
+
+  const glitchTime = parseFloat(sessionStorage.getItem("bgmGlitchTime") || "0");
+  const glitchVolume = parseFloat(sessionStorage.getItem("bgmGlitchVolume") || "0.2");
+  const glitchPlaying = sessionStorage.getItem("bgmGlitchPlaying") === "true";
+
+  try {
+    if (bgmAmbient) {
+      bgmAmbient.loop = true;
+      bgmAmbient.currentTime = ambientTime;
+      bgmAmbient.volume = ambientVolume;
+    }
+
+    if (bgmGlitch) {
+      bgmGlitch.loop = true;
+      bgmGlitch.currentTime = glitchTime;
+      bgmGlitch.volume = glitchVolume;
+    }
+
+    if (ambientPlaying && bgmAmbient) {
+      await bgmAmbient.play();
+    }
+
+    if (glitchPlaying && bgmGlitch) {
+      await bgmGlitch.play();
+    }
+  } catch (e) {
+    console.warn("BGM autoplay blocked on truth page:", e);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  restoreBgmState();
+});
+
 let noiseInterval = null;
 let flowLTRInterval = null;
 let flowRTLInterval = null;

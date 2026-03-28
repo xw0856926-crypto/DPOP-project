@@ -8,7 +8,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #120617;
+  background: #000000;
   font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
 }
 
@@ -28,7 +28,7 @@ body {
   height: 1024px;
   transform-origin: center center;
   overflow: hidden;
-  background: #120617;
+  background: #000000;
 }
 
 /* 场景 */

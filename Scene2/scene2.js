@@ -3,6 +3,9 @@ const taskScene = document.getElementById("task1");
 const outcomeScene = document.getElementById("outcome1");
 const timerPanelImg = document.getElementById("timerPanelImg");
 const alarmSound = document.getElementById("alarmSound");
+alarmSound.volume = 0.6; // 0 ~ 1
+const timerPanel = document.getElementById("timerPanel");
+const popupSound = document.getElementById("popupSound");
 
 const task2Trigger = document.getElementById("task2Trigger");
 
@@ -52,6 +55,47 @@ function fitStage() {
 
 window.addEventListener("resize", fitStage);
 fitStage();
+
+// ✅ BGM
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
+
+// 初始音量（很关键）
+bgmAmbient.volume = 0;
+bgmGlitch.volume = 0;
+
+// 播放（需要用户交互触发）
+function startBGM() {
+  bgmAmbient.play().catch(() => {});
+  bgmGlitch.play().catch(() => {});
+
+  fadeInAudio(bgmAmbient, 4000, 0.4); // 环境音目标音量
+  fadeInAudio(bgmGlitch, 4000, 0.2);  // glitch轻一点
+}
+
+startBGM();
+
+// 淡入函数
+function fadeInAudio(audio, duration = 800, targetVolume = 1) {
+  const step = 0.02;
+  const interval = duration / (targetVolume / step);
+
+  const fade = setInterval(() => {
+    if (audio.volume < targetVolume) {
+      audio.volume = Math.min(audio.volume + step, targetVolume);
+    } else {
+      clearInterval(fade);
+    }
+  }, interval);
+}
+
+function boostGlitch() {
+  bgmGlitch.volume = 0.5;
+
+  setTimeout(() => {
+    bgmGlitch.volume = 0.2;
+  }, 1000);
+}
 
 /* TIME LEFT 闪烁 */
 function flicker() {
@@ -132,6 +176,11 @@ function openPopup(context) {
   popupContext = context;
   popupOverlay.classList.add("show");
 
+  // ✅ 播放弹窗音效
+  popupSound.currentTime = 0;
+  popupSound.volume = 0.6;
+  popupSound.play().catch(() => {});
+
   glitchPopup.classList.remove("is-closing");
   glitchPopup.classList.remove("is-glitching");
   void glitchPopup.offsetWidth;
@@ -192,6 +241,11 @@ function showScene(sceneToShow) {
   });
 
   sceneToShow.classList.add("active");
+
+  // ✅ 用 sceneToShow.id
+  if (sceneToShow.id.includes("outcome")) {
+    boostGlitch();
+  }
 }
 
 function setPopupImage(src) {
@@ -276,12 +330,27 @@ reminiscenceTrigger.addEventListener("click", () => {
     setPopupImage("./image/image3.png");
     openPopup("outcome3");
     reminiscencePopupSeen = true;
-  } else {
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-    
-    window.location.href = "./Reminiscence/reminiscence.html";
+    return;
   }
+
+  alarmSound.pause();
+  alarmSound.currentTime = 0;
+
+  sessionStorage.setItem("scene2BgmShouldResume", "true");
+  sessionStorage.setItem("scene2AmbientTime", String(bgmAmbient.currentTime));
+  sessionStorage.setItem("scene2GlitchTime", String(bgmGlitch.currentTime));
+  sessionStorage.setItem("scene2AmbientVolume", String(bgmAmbient.volume));
+  sessionStorage.setItem("scene2GlitchVolume", String(bgmGlitch.volume));
+
+  console.log("saved BGM state before redirect", {
+    shouldResume: sessionStorage.getItem("scene2BgmShouldResume"),
+    ambientTime: sessionStorage.getItem("scene2AmbientTime"),
+    glitchTime: sessionStorage.getItem("scene2GlitchTime"),
+    ambientVolume: sessionStorage.getItem("scene2AmbientVolume"),
+    glitchVolume: sessionStorage.getItem("scene2GlitchVolume")
+  });
+
+  window.location.href = "./Reminiscence/reminiscence.html";
 });
 
 function swapOutcomeBackground(context) {

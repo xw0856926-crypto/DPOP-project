@@ -13,6 +13,36 @@ const memoryLine3 = document.getElementById("memoryLine3");
 
 const glitchOverlay = document.getElementById("glitchOverlay");
 
+const bgm = document.getElementById("bgm");
+
+// 初始音量为0（关键！）
+bgm.volume = 0;
+
+// 播放（浏览器可能需要用户交互触发）
+bgm.play().catch(() => {
+  console.log("Autoplay 被拦截，等待用户交互");
+});
+
+// 淡入函数
+function fadeInAudio(audio, duration = 3000, targetVolume = 0.2) {
+  const step = 0.02;
+  const interval = duration / (targetVolume / step);
+
+  const fade = setInterval(() => {
+    if (audio.volume < targetVolume) {
+      audio.volume = Math.min(audio.volume + step, targetVolume);
+    } else {
+      clearInterval(fade);
+    }
+  }, interval);
+}
+
+bgm.play().catch(() => {
+  console.log("Autoplay 被拦截");
+});
+
+fadeInAudio(bgm, 5000, 0.18); // 👈 关键改这里
+
 const STAGE_WIDTH = 1440;
 const STAGE_HEIGHT = 1024;
 

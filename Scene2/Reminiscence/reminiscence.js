@@ -14,6 +14,61 @@ typingSound.volume = 0.35;
 const correctSound = new Audio("./sound/correct.mp3");
 const wrongSound = new Audio("./sound/wrong.mp3");
 
+/* ===== BGM ===== */
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
+
+function getSavedBGMState() {
+  return {
+    shouldResume: sessionStorage.getItem("scene2BgmShouldResume") === "true",
+    ambientTime: parseFloat(sessionStorage.getItem("scene2AmbientTime")) || 0,
+    glitchTime: parseFloat(sessionStorage.getItem("scene2GlitchTime")) || 0,
+    ambientVolume: parseFloat(sessionStorage.getItem("scene2AmbientVolume")),
+    glitchVolume: parseFloat(sessionStorage.getItem("scene2GlitchVolume"))
+  };
+}
+
+function clearSavedBGMState() {
+  sessionStorage.removeItem("scene2BgmShouldResume");
+  sessionStorage.removeItem("scene2AmbientTime");
+  sessionStorage.removeItem("scene2GlitchTime");
+  sessionStorage.removeItem("scene2AmbientVolume");
+  sessionStorage.removeItem("scene2GlitchVolume");
+}
+
+function startBGMFromState() {
+  const state = getSavedBGMState();
+
+  const ambientVolume = Number.isNaN(state.ambientVolume) ? 0.4 : state.ambientVolume;
+  const glitchVolume = Number.isNaN(state.glitchVolume) ? 0.2 : state.glitchVolume;
+
+  bgmAmbient.volume = ambientVolume;
+  bgmGlitch.volume = glitchVolume;
+
+  if (state.shouldResume) {
+    bgmAmbient.currentTime = state.ambientTime;
+    bgmGlitch.currentTime = state.glitchTime;
+  } else {
+    bgmAmbient.currentTime = 0;
+    bgmGlitch.currentTime = 0;
+  }
+
+  bgmAmbient.play().catch((err) => {
+    console.log("ambient play failed:", err);
+  });
+
+  bgmGlitch.play().catch((err) => {
+    console.log("glitch play failed:", err);
+  });
+
+  if (state.shouldResume) {
+    clearSavedBGMState();
+  }
+}
+
+// ✅ 页面加载后直接尝试播放
+startBGMFromState();
+
 correctSound.preload = "auto";
 wrongSound.preload = "auto";
 
@@ -127,7 +182,7 @@ allCards.forEach((card) => {
 /* ===== 全部日记完成后显示姓名输入框 ===== */
 function checkAllDiariesFinished() {
   if (completedCards === totalCards) {
-   namePanel.classList.remove("hidden");
+    namePanel.classList.remove("hidden");
   }
 }
 

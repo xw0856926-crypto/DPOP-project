@@ -7,6 +7,37 @@ const blackOverlay = document.getElementById("blackOverlay");
 const stage = document.getElementById("stage");
 const emailPanel = document.getElementById("emailPanel");
 
+const emailBgm = document.getElementById("emailBgm");
+
+// 淡入函数
+function fadeInAudio(audio, duration = 4000, targetVolume = 0.18) {
+  const step = 0.01;
+  const interval = duration / (targetVolume / step);
+
+  const fade = setInterval(() => {
+    if (audio.volume < targetVolume) {
+      audio.volume = Math.min(audio.volume + step, targetVolume);
+    } else {
+      clearInterval(fade);
+    }
+  }, interval);
+}
+
+// 初始静音
+emailBgm.volume = 0;
+
+// 尝试播放
+emailBgm.play().then(() => {
+  fadeInAudio(emailBgm, 4000, 0.18);
+}).catch(() => {
+  console.log("Autoplay 被拦截，等待用户交互");
+
+  document.addEventListener("click", () => {
+    emailBgm.play();
+    fadeInAudio(emailBgm, 4000, 0.18);
+  }, { once: true });
+});
+
 const savedName = localStorage.getItem("playerName") || "XXX";
 
 if (playerNameSlot) {

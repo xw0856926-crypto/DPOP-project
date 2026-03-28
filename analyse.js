@@ -6,6 +6,23 @@ const analyseStatus = document.getElementById("analyseStatus");
 const outcomeBox = document.getElementById("outcomeBox");
 const outcomeText = document.getElementById("outcomeText");
 
+// ✅ 新增：BGM
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
+
+// ✅ 新增：结果出现时播放的人声
+const humanVoiceMap = {
+  1: document.getElementById("humanVoice1"),
+  2: document.getElementById("humanVoice2"),
+  3: document.getElementById("humanVoice3")
+};
+
+// ✅ 每段人声音量（你可以随便调）
+const humanVoiceVolume = {
+  1: 0.5,
+  2: 1,
+  3: 1
+};
 
 const voiceAudio = {
   1: new Audio("assets/audio/voice_clue_1.wav"),
@@ -27,11 +44,117 @@ const NEXT_PAGE = "truth_page/truth.html";
 
 let currentVoice = null;
 
-slots.forEach(slot=>{
+// ===========================
+// ✅ Human voice helpers
+// ===========================
+function stopAllHumanVoices() {
+  Object.values(humanVoiceMap).forEach((audio) => {
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    audio.loop = false;
+  });
+}
+
+function playHumanVoice(voiceId) {
+  const audio = humanVoiceMap[voiceId];
+  if (!audio) return null;
+
+  stopAllHumanVoices();
+
+  audio.onended = null;
+  audio.currentTime = 0;
+  audio.loop = false;
+  audio.volume = humanVoiceVolume[voiceId] ?? 0.8;
+
+  lowerBgmForHumanVoice();
+
+  audio.play().catch((e) => {
+    console.warn("human voice play failed:", e);
+  });
+
+  audio.addEventListener(
+    "ended",
+    () => {
+      restoreBgm();
+    },
+    { once: true }
+  );
+
+  return audio;
+}
+
+// ===========================
+// ✅ BGM helpers
+// ===========================
+function lowerBgmForAnalysis() {
+  if (bgmAmbient) bgmAmbient.volume = 0.2;
+  if (bgmGlitch) bgmGlitch.volume = 0.15;
+}
+
+function lowerBgmForHumanVoice() {
+  if (bgmAmbient) bgmAmbient.volume = 0.08;
+  if (bgmGlitch) bgmGlitch.volume = 0.05;
+}
+
+function restoreBgm() {
+  if (bgmAmbient) bgmAmbient.volume = 0.45;
+  if (bgmGlitch) bgmGlitch.volume = 0.2;
+}
+
+function saveBgmState() {
+  if (bgmAmbient) {
+    sessionStorage.setItem("bgmAmbientTime", String(bgmAmbient.currentTime || 0));
+    sessionStorage.setItem("bgmAmbientVolume", String(bgmAmbient.volume || 0.45));
+    sessionStorage.setItem("bgmAmbientPlaying", String(!bgmAmbient.paused));
+  }
+
+  if (bgmGlitch) {
+    sessionStorage.setItem("bgmGlitchTime", String(bgmGlitch.currentTime || 0));
+    sessionStorage.setItem("bgmGlitchVolume", String(bgmGlitch.volume || 0.2));
+    sessionStorage.setItem("bgmGlitchPlaying", String(!bgmGlitch.paused));
+  }
+}
+
+async function restoreBgmState() {
+  const ambientTime = parseFloat(sessionStorage.getItem("bgmAmbientTime") || "3");
+  const ambientVolume = parseFloat(sessionStorage.getItem("bgmAmbientVolume") || "0.45");
+  const ambientPlaying = sessionStorage.getItem("bgmAmbientPlaying") === "true";
+
+  const glitchTime = parseFloat(sessionStorage.getItem("bgmGlitchTime") || "0");
+  const glitchVolume = parseFloat(sessionStorage.getItem("bgmGlitchVolume") || "0.2");
+  const glitchPlaying = sessionStorage.getItem("bgmGlitchPlaying") === "true";
+
+  try {
+    if (bgmAmbient) {
+      bgmAmbient.loop = true;
+      bgmAmbient.currentTime = ambientTime;
+      bgmAmbient.volume = ambientVolume;
+    }
+
+    if (bgmGlitch) {
+      bgmGlitch.loop = true;
+      bgmGlitch.currentTime = glitchTime;
+      bgmGlitch.volume = glitchVolume;
+    }
+
+    if (ambientPlaying && bgmAmbient) {
+      await bgmAmbient.play();
+    }
+
+    if (glitchPlaying && bgmGlitch) {
+      await bgmGlitch.play();
+    }
+  } catch (e) {
+    console.warn("BGM autoplay blocked on analyse page:", e);
+  }
+}
+
+slots.forEach(slot => {
   const img = slot.querySelector("img");
   const voiceId = slot.dataset.voice;
 
-  img.addEventListener("dragstart", (e)=>{
+  img.addEventListener("dragstart", (e) => {
     // ✅ 统一：都用 text/plain
     e.dataTransfer.setData("text/plain", voiceId);
     e.dataTransfer.effectAllowed = "move";
@@ -41,7 +164,7 @@ slots.forEach(slot=>{
   });
 });
 
-dropZone.addEventListener("dragover", e=>{
+dropZone.addEventListener("dragover", e => {
   e.preventDefault();
 });
 
@@ -63,8 +186,7 @@ dropZone.addEventListener("drop", (e) => {
 const dropHint = document.getElementById("dropHint");
 const rightSlot = document.getElementById("rightSlot");
 
-
-function showDropCard(src){
+function showDropCard(src) {
   dropDisplay.src = src;
   dropDisplay.classList.add("is-on");
 
@@ -73,7 +195,7 @@ function showDropCard(src){
   if (dropHint) dropHint.style.display = "none";
 }
 
-function clearDropCard(){
+function clearDropCard() {
   dropDisplay.src = "";
   dropDisplay.classList.remove("is-on");
 
@@ -82,9 +204,16 @@ function clearDropCard(){
   if (dropHint) dropHint.style.display = "block";
 }
 
-function startAnalysis(voiceId){
+function startAnalysis(voiceId) {
   const audio = voiceAudio[voiceId];
   audio.currentTime = 0;
+  audio.volume = 0.5;
+
+  // ✅ 新增：开始新的分析前，先停掉之前可能还在播的人声
+  stopAllHumanVoices();
+
+  // ✅ 新增：播放语音前压低 BGM
+  lowerBgmForAnalysis();
 
   if (outcomeBox) outcomeBox.classList.remove("is-on");
   if (outcomeText) outcomeText.textContent = "";
@@ -93,51 +222,79 @@ function startAnalysis(voiceId){
   showDropCard(`assets/image/analyse/voice${voiceId}_drop.png`);
 
   if (analyseStatus) {
-  analyseStatus.textContent = "ANALYSING";
-  analyseStatus.classList.add("active");
-}
+    analyseStatus.textContent = "ANALYSING";
+    analyseStatus.classList.add("active");
+  }
+
   if (scanLine) scanLine.classList.add("active");
   waveSvg.classList.add("active");
   startWave();
 
-  audio.play().catch((e)=>console.warn("audio play failed:", e));
+  audio.play().catch((e) => console.warn("audio play failed:", e));
 
   audio.onended = () => {
-  // 停止波浪线
-  if (analyseStatus) {
-  analyseStatus.textContent = "OUTCOME";
-  analyseStatus.classList.add("active"); // 保持显示
-}
-  // ✅ 显示 outcome 文本（不同 voice 不同结果）
-  if (outcomeText) outcomeText.textContent = outcomeMap[voiceId] || "";
-  if (outcomeBox) outcomeBox.classList.add("is-on");
-  if (scanLine) scanLine.classList.remove("active");
-  waveSvg.classList.remove("active");
-  stopWave();
+    // 停止波浪线
+    if (analyseStatus) {
+      analyseStatus.textContent = "OUTCOME";
+      analyseStatus.classList.add("active"); // 保持显示
+    }
 
-  // ✅ 左侧立刻变成 finished（归位）
-  const slotImg = document.querySelector(`.voice-slot[data-voice='${voiceId}'] img`);
-  if (slotImg) {
-    slotImg.src = `assets/image/analyse/voice${voiceId}_finished.png`;
-    slotImg.draggable = false;      // 已完成就不让再拖（如果你要可重复可删）
-    slotImg.style.cursor = "default";
-  }
+    // ✅ 显示 outcome 文本（不同 voice 不同结果）
+    if (outcomeText) outcomeText.textContent = outcomeMap[voiceId] || "";
+    if (outcomeBox) outcomeBox.classList.add("is-on");
 
-  // ✅ 记录完成的 voice
-  finishedVoices.add(Number(voiceId));
+    // ✅ 新增：outcome 出现时自动播放对应 human voice（单次）
+    playHumanVoice(voiceId);
 
-  // ✅ 三个都完成后自动跳转（只触发一次）
-  if (!hasRedirected && finishedVoices.size === 3) {
-  hasRedirected = true;
+    if (scanLine) scanLine.classList.remove("active");
+    waveSvg.classList.remove("active");
+    stopWave();
 
-   // 想让用户看到 OUTCOME 一下再跳就保留 800ms
-   setTimeout(() => {
-     startAnalyseToTruthTransition();
-   }, 800);
-  }
-  // ✅ 右侧立刻清空（不展示 finished 停留）
-  clearDropCard();
-};
+    // ✅ 左侧立刻变成 finished（归位）
+    const slotImg = document.querySelector(`.voice-slot[data-voice='${voiceId}'] img`);
+    if (slotImg) {
+      slotImg.src = `assets/image/analyse/voice${voiceId}_finished.png`;
+      slotImg.draggable = false;
+      slotImg.style.cursor = "default";
+    }
+
+    // ✅ 记录完成的 voice
+    finishedVoices.add(Number(voiceId));
+
+    // ✅ 三个都完成后自动跳转（只触发一次）
+    if (!hasRedirected && finishedVoices.size === 3) {
+     hasRedirected = true;
+
+     const finalHumanVoice = humanVoiceMap[voiceId];
+
+     if (finalHumanVoice) {
+       let triggered = false;
+
+       finalHumanVoice.onended = () => {
+         restoreBgm();
+
+         if (triggered) return;
+         triggered = true;
+         startAnalyseToTruthTransition();
+       };
+
+       // 保险，防止极端情况下 onended 没触发
+       setTimeout(() => {
+         if (!triggered) {
+           triggered = true;
+           startAnalyseToTruthTransition();
+         }
+       }, Math.ceil((finalHumanVoice.duration || 0) * 1000) + 300);
+     } else {
+       setTimeout(() => {
+         startAnalyseToTruthTransition();
+       }, 800);
+     }
+   }
+
+    // ✅ 右侧立刻清空（不展示 finished 停留）
+    clearDropCard();
+  };
 }
 
 // ===========================
@@ -152,9 +309,9 @@ console.log("waveSvg:", waveSvg, "wave1:", wave1, "wave2:", wave2, "wave3:", wav
 let waveRAF = null;
 let t = 0;
 
-const baseAmp = 15;     // 峰值强度：越大越夸张（建议 16~30）
-const samples = 600;    // 越大越平滑（建议 120~180）
-const waveStore = new Map(); // pathEl -> base pts
+const baseAmp = 15;
+const samples = 600;
+const waveStore = new Map();
 
 function sampleBase(pathEl) {
   const len = pathEl.getTotalLength();
@@ -166,7 +323,6 @@ function sampleBase(pathEl) {
   return pts;
 }
 
-// Catmull-Rom -> Bezier：平滑曲线（避免“折线断裂感”）
 function buildLineD(pts) {
   let d = `M ${pts[0].x.toFixed(3)} ${pts[0].y.toFixed(3)}`;
   for (let i = 1; i < pts.length; i++) {
@@ -185,7 +341,7 @@ function deform(pathEl, amp, phase, speed, f1, f2) {
   const base = waveStore.get(pathEl);
   if (!base) return;
 
-  const clamp = amp * 1.2; // ✅ 收紧一点，避免过冲乱飞
+  const clamp = amp * 1.2;
 
   const out = base.map((p, i) => {
     const nx = i / samples;
@@ -198,7 +354,7 @@ function deform(pathEl, amp, phase, speed, f1, f2) {
 
     const off = Math.max(-clamp, Math.min(clamp, raw));
 
-    return { x: p.x, y: p.y + off }; // ✅ 只改 y
+    return { x: p.x, y: p.y + off };
   });
 
   pathEl.setAttribute("d", buildLineD(out));
@@ -217,7 +373,6 @@ function waveLoop() {
 function startWave() {
   if (waveRAF) return;
 
-  // 第一次启动时采样“原始曲线”
   if (!waveStore.size) {
     waveStore.set(wave1, sampleBase(wave1));
     waveStore.set(wave2, sampleBase(wave2));
@@ -271,7 +426,6 @@ function startAnalyseToTruthTransition() {
 
     let finalShift = shift;
 
-    // ✅ 反方向撕裂
     if (Math.random() < 0.35) {
       finalShift = -shift;
     }
@@ -307,8 +461,14 @@ function startAnalyseToTruthTransition() {
     document.body.appendChild(blackout);
   }, 700);
 
-  // ✅ 跳转
+  // ✅ 跳转前保存 BGM 状态
   setTimeout(() => {
+    saveBgmState();
     window.location.href = NEXT_PAGE;
   }, 900);
 }
+
+// ✅ 页面加载时恢复上一页 BGM 状态
+window.addEventListener("DOMContentLoaded", () => {
+  restoreBgmState();
+});
