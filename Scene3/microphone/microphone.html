@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="./microphone.css" />
 </head>
 <body>
+  <audio id="bgmAmbient" src="../assets/sounds/ambient-loop.mp3" loop></audio>
+  <audio id="bgmGlitch" src="./assets/sound/glitch.mp3" loop></audio>
+
   <div id="app">
     <div id="stage-scale">
       <div id="stage">
@@ -31,20 +34,20 @@
 
           <span class="mic-ring">
             <svg
-             class="mic-icon"
-             width="58"
-             height="58"
-             viewBox="0 0 64 64"
-             fill="none"
-             xmlns="http://www.w3.org/2000/svg"
-           >
-             <rect x="24" y="12" width="16" height="26" rx="8" fill="#454545"/>
-             <path d="M18 30C18 37.732 24.268 44 32 44C39.732 44 46 37.732 46 30" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
-             <path d="M32 44V52" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
-             <path d="M24 52H40" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
-           </svg>
-         </span>
-       </button>
+              class="mic-icon"
+              width="58"
+              height="58"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect x="24" y="12" width="16" height="26" rx="8" fill="#454545"/>
+              <path d="M18 30C18 37.732 24.268 44 32 44C39.732 44 46 37.732 46 30" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
+              <path d="M32 44V52" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
+              <path d="M24 52H40" stroke="#454545" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
 
         <!-- 题目音频 -->
         <audio id="questionAudio" preload="auto">
@@ -53,35 +56,36 @@
       </div>
 
       <div id="glitchFlash">
-       <div class="glitch-bar bar-1"></div>
-       <div class="glitch-bar bar-2"></div>
-       <div class="glitch-bar bar-3"></div>
-       <div class="glitch-bar bar-4"></div>
-       <div class="glitch-bar bar-5"></div>
-     </div>
+        <div class="glitch-bar bar-1"></div>
+        <div class="glitch-bar bar-2"></div>
+        <div class="glitch-bar bar-3"></div>
+        <div class="glitch-bar bar-4"></div>
+        <div class="glitch-bar bar-5"></div>
+      </div>
 
       <div id="endingText">
-         <div class="ending-line">Hi CITY 04,</div>
-         <div class="ending-line">Welcome to 2033</div>
+        <div class="ending-line">Hi CITY 04,</div>
+        <div class="ending-line">Welcome to 2033</div>
       </div>
 
       <div id="reportRoll">
-       <div id="reportContent">
-         <p>[ SYSTEM REPORT ]</p>
-         <p></p>
-         <p>Conversion method: Voluntary compliance</p>
-         <p>Influence source: Information conditioning</p>
-         <p></p>
-         <p>Primary target group:</p>
-         <p>Economically vulnerable population</p>
-         <p></p>
-         <p>Result:</p>
-         <p>Sustained resource extraction</p>
-       </div>
-     </div>
+        <div id="reportContent">
+          <p>[ SYSTEM REPORT ]</p>
+          <p></p>
+          <p>Conversion method: Voluntary compliance</p>
+          <p>Influence source: Information conditioning</p>
+          <p></p>
+          <p>Primary target group:</p>
+          <p>Economically vulnerable population</p>
+          <p></p>
+          <p>Result:</p>
+          <p>Sustained resource extraction</p>
+        </div>
+      </div>
     </div>
   </div>
 
+  <script src="../../assets/click-sound.js"></script>
   <script src="./microphone.js"></script>
 </body>
 </html>

@@ -17,12 +17,21 @@ const glitchVideo1 = document.getElementById("glitchVideo1");
 const glitchVideo2 = document.getElementById("glitchVideo2");
 const glitchVideo3 = document.getElementById("glitchVideo3");
 
+/* ===== BGM（从 HTML 获取，安全版）===== */
+const bgm = document.getElementById("bgm");
+
+if (bgm) {
+  bgm.loop = true;
+  bgm.preload = "auto";
+  bgm.volume = 0;
+}
+
 const warningSound = new Audio("./sound/warning.mp3");
 warningSound.loop = true;
 warningSound.volume = 0.6;
 
 const wrongSound = new Audio("../Reminiscence/sound/wrong.mp3");
-wrongSound.volume = 0.7;
+wrongSound.volume = 1;
 wrongSound.loop = false;
 
 const correctSound = new Audio("./sound/creepy-dark.mp3");
@@ -37,6 +46,126 @@ let audioUnlocked = false;
 let stage3Active = false;
 let inputBuffer = "";
 let inputLocked = false;
+let bgmStarted = false;
+let bgmFadeInterval = null;
+
+let bgmVolumeInterval = null;
+const BGM_NORMAL_VOLUME = 0.3;
+const BGM_DUCK_VOLUME = 0.15;
+
+function animateBGMVolume(targetVolume, duration = 400) {
+  if (!bgm) return;
+
+  if (bgmVolumeInterval) {
+    clearInterval(bgmVolumeInterval);
+  }
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const startVolume = bgm.volume;
+  const delta = (targetVolume - startVolume) / steps;
+  let currentStep = 0;
+
+  bgmVolumeInterval = setInterval(() => {
+    currentStep++;
+
+    if (currentStep >= steps) {
+      bgm.volume = targetVolume;
+      clearInterval(bgmVolumeInterval);
+      bgmVolumeInterval = null;
+      return;
+    }
+
+    bgm.volume = Math.max(0, Math.min(1, bgm.volume + delta));
+  }, stepTime);
+}
+
+function duckBGM() {
+  animateBGMVolume(BGM_DUCK_VOLUME, 250);
+}
+
+function restoreBGM() {
+  animateBGMVolume(BGM_NORMAL_VOLUME, 500);
+}
+
+function fadeInBGM(audio, targetVolume = 0.4, duration = 3000) {
+  if (!audio) return;
+
+  if (bgmFadeInterval) {
+    clearInterval(bgmFadeInterval);
+  }
+
+  audio.volume = 0;
+
+  const stepTime = 100;
+  const steps = duration / stepTime;
+  const stepVolume = targetVolume / steps;
+
+  bgmFadeInterval = setInterval(() => {
+    if (audio.volume < targetVolume) {
+      audio.volume = Math.min(audio.volume + stepVolume, targetVolume);
+    } else {
+      clearInterval(bgmFadeInterval);
+      bgmFadeInterval = null;
+    }
+  }, stepTime);
+}
+
+function startBGM() {
+  if (!bgm) {
+    console.warn("BGM element #bgm not found");
+    return;
+  }
+
+  if (bgmStarted) return;
+  bgmStarted = true;
+
+  bgm.volume = 0;
+
+  bgm.play()
+    .then(() => {
+      fadeInBGM(bgm, BGM_NORMAL_VOLUME, 3000);
+    })
+    .catch((err) => {
+      console.log("BGM play failed:", err);
+      bgmStarted = false;
+    });
+}
+
+function fadeOutBGM(duration = 600) {
+  if (!bgm) return;
+
+  if (bgmFadeInterval) {
+    clearInterval(bgmFadeInterval);
+  }
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const startVolume = bgm.volume;
+  const stepVolume = startVolume / steps;
+
+  bgmFadeInterval = setInterval(() => {
+    if (bgm.volume > stepVolume) {
+      bgm.volume = Math.max(0, bgm.volume - stepVolume);
+    } else {
+      bgm.volume = 0;
+      clearInterval(bgmFadeInterval);
+      bgmFadeInterval = null;
+      bgm.pause();
+    }
+  }, stepTime);
+}
+
+function stopBGM() {
+  if (!bgm) return;
+
+  if (bgmFadeInterval) {
+    clearInterval(bgmFadeInterval);
+    bgmFadeInterval = null;
+  }
+
+  bgm.pause();
+}
 
 function unlockAudio() {
   if (audioUnlocked) return;
@@ -59,6 +188,8 @@ function unlockAudio() {
 function startWarningSound() {
   if (warningPlaying) return;
   warningPlaying = true;
+
+  duckBGM();
 
   warningSound.pause();
   warningSound.currentTime = 0;
@@ -83,6 +214,7 @@ function stopWarningSound() {
   warningPlaying = false;
   warningSound.pause();
   warningSound.currentTime = 0;
+  restoreBGM();
 }
 
 function setDetectText(text, isRed = false) {
@@ -97,9 +229,8 @@ function setDetectText(text, isRed = false) {
     detectText.classList.add("status-white");
   }
 
-  // 👉 触发放大动画
-  detectText.classList.remove("pop"); // 重置
-  void detectText.offsetWidth;        // 强制刷新（关键！）
+  detectText.classList.remove("pop");
+  void detectText.offsetWidth;
   detectText.classList.add("pop");
 }
 
@@ -184,6 +315,11 @@ function goToStage2() {
 
 trigger.addEventListener("click", enableCamera);
 
+/* ===== 页面进入就尝试播放 BGM ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  startBGM();
+});
+
 window.addEventListener("beforeunload", () => {
   if (streamRef) {
     streamRef.getTracks().forEach((track) => track.stop());
@@ -192,6 +328,7 @@ window.addEventListener("beforeunload", () => {
   stopWarningSound();
   stopWrongSound();
   stopCorrectSound();
+  fadeOutBGM(500);
 });
 
 function goToStage3() {
@@ -266,6 +403,7 @@ function handleCorrectInput(playerName) {
 
   stopWrongSound();
   stopWarningSound();
+  fadeOutBGM(500);
 
   playCorrectSound();
 
@@ -338,6 +476,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 function playWrongSound() {
+  duckBGM();
   wrongSound.currentTime = 0;
   wrongSound.play().catch(() => {});
 }
@@ -345,6 +484,7 @@ function playWrongSound() {
 function stopWrongSound() {
   wrongSound.pause();
   wrongSound.currentTime = 0;
+  restoreBGM();
 }
 
 function handleCity04Error() {
@@ -355,7 +495,6 @@ function handleCity04Error() {
   inputLocked = true;
   stage3Active = false;
 
-  // 先让输入区报错
   whoInputWrap.classList.add("error");
   playWrongSound();
 
@@ -367,37 +506,31 @@ function handleCity04Error() {
     errorOverlay.classList.add("active");
     glitchBars.classList.add("active");
 
-    // 隐藏 WHO ARE YOU
     bg3.classList.remove("active");
     whoInputWrap.classList.remove("active");
 
-    // 清掉第二阶段 UI
     overlay.classList.remove("active");
     scanLine.classList.remove("active");
     detectText.classList.remove("active", "status-white", "status-red", "flash-red", "pop");
     if (frame) frame.classList.remove("active");
 
-    // 主摄像头全屏
     video.classList.add("active");
     video.classList.remove("stage1-video", "stage2-video");
     video.classList.add("fullscreen-video");
 
     restoreCameraForFullscreenError().then(() => {
-      // 横向撕裂条出现
       glitchVideo1.classList.add("active", "tearing");
       glitchVideo2.classList.add("active", "tearing");
       glitchVideo3.classList.add("active", "tearing");
     });
   }, 700);
 
-  // 2 秒后再次 glitch，准备切回
   setTimeout(() => {
     flashOverlay.classList.add("flash");
     stage.classList.add("glitch");
     stage.classList.add("system-error");
   }, 2400);
 
-  // 回到 WHO ARE YOU
   setTimeout(() => {
     bg3.classList.add("active");
 
@@ -415,7 +548,6 @@ function handleCity04Error() {
     whoInputWrap.classList.add("active");
   }, 2600);
 
-  // 清理状态
   setTimeout(() => {
     flashOverlay.classList.remove("flash");
     stage.classList.remove("glitch");
@@ -458,15 +590,49 @@ function syncGlitchVideosStream() {
 }
 
 function playCorrectSound() {
+  if (correctFadeInterval) {
+    clearInterval(correctFadeInterval);
+    correctFadeInterval = null;
+  }
+
+  correctSound.volume = 1.0;
   correctSound.currentTime = 0;
   correctSound.play().catch((err) => {
     console.log("Correct sound play failed:", err);
   });
 }
 
+let correctFadeInterval = null;
+
+function fadeOutCorrectSound(duration = 1100) {
+  if (!correctSound) return;
+
+  if (correctFadeInterval) {
+    clearInterval(correctFadeInterval);
+  }
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const startVolume = correctSound.volume;
+  const stepVolume = startVolume / steps;
+
+  correctFadeInterval = setInterval(() => {
+    if (correctSound.volume > stepVolume) {
+      correctSound.volume = Math.max(0, correctSound.volume - stepVolume);
+    } else {
+      correctSound.volume = 0;
+      clearInterval(correctFadeInterval);
+      correctFadeInterval = null;
+      correctSound.pause();
+      correctSound.currentTime = 0;
+    }
+  }, stepTime);
+}
+
 function stopCorrectSound() {
   correctSound.pause();
   correctSound.currentTime = 0;
+  restoreBGM();
 }
 
 function goToScene3WithGlitch() {
@@ -478,6 +644,9 @@ function goToScene3WithGlitch() {
   glitchVideo3.classList.remove("active", "tearing");
 
   stage.classList.add("glitch");
+
+  // memory back 音乐开始淡出，结束时刚好跳转
+  fadeOutCorrectSound(1100);
 
   setTimeout(() => {
     flashOverlay.classList.add("flash");

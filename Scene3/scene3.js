@@ -13,35 +13,101 @@ const memoryLine3 = document.getElementById("memoryLine3");
 
 const glitchOverlay = document.getElementById("glitchOverlay");
 
-const bgm = document.getElementById("bgm");
+/* ===== BGM：双音轨 ===== */
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
 
-// 初始音量为0（关键！）
-bgm.volume = 0;
+/* 初始音量为 0，后面淡入 */
+if (bgmAmbient) bgmAmbient.volume = 0;
+if (bgmGlitch) bgmGlitch.volume = 0;
 
-// 播放（浏览器可能需要用户交互触发）
-bgm.play().catch(() => {
-  console.log("Autoplay 被拦截，等待用户交互");
-});
+function saveScene3BgmState() {
+  if (!bgmAmbient) return;
 
-// 淡入函数
-function fadeInAudio(audio, duration = 3000, targetVolume = 0.2) {
-  const step = 0.02;
-  const interval = duration / (targetVolume / step);
-
-  const fade = setInterval(() => {
-    if (audio.volume < targetVolume) {
-      audio.volume = Math.min(audio.volume + step, targetVolume);
-    } else {
-      clearInterval(fade);
-    }
-  }, interval);
+  sessionStorage.setItem("emailAmbientShouldResume", "true");
+  sessionStorage.setItem("emailAmbientTime", String(bgmAmbient.currentTime || 0));
+  sessionStorage.setItem("emailAmbientVolume", String(bgmAmbient.volume || 0.16));
 }
 
-bgm.play().catch(() => {
-  console.log("Autoplay 被拦截");
-});
+function clearScene3BgmState() {
+  sessionStorage.removeItem("emailAmbientShouldResume");
+  sessionStorage.removeItem("emailAmbientTime");
+  sessionStorage.removeItem("emailAmbientVolume");
+}
 
-fadeInAudio(bgm, 5000, 0.18); // 👈 关键改这里
+/* 淡入函数 */
+function fadeInAudio(audio, duration = 3000, targetVolume = 0.2) {
+  if (!audio) return;
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const volumeStep = (targetVolume - audio.volume) / steps;
+
+  const fade = setInterval(() => {
+    const next = audio.volume + volumeStep;
+
+    if (
+      (volumeStep >= 0 && next >= targetVolume) ||
+      (volumeStep < 0 && next <= targetVolume)
+    ) {
+      audio.volume = targetVolume;
+      clearInterval(fade);
+    } else {
+      audio.volume = Math.max(0, Math.min(1, next));
+    }
+  }, stepTime);
+}
+
+/* 淡出函数 */
+function fadeOutAudio(audio, duration = 400, callback) {
+  if (!audio) {
+    if (callback) callback();
+    return;
+  }
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const volumeStep = audio.volume / steps;
+
+  const fade = setInterval(() => {
+    const next = audio.volume - volumeStep;
+
+    if (next <= 0.01) {
+      audio.volume = 0;
+      clearInterval(fade);
+      if (callback) callback();
+    } else {
+      audio.volume = Math.max(0, next);
+    }
+  }, stepTime);
+}
+
+/* 播放双音轨 */
+function startScene3Bgm() {
+  if (bgmAmbient) {
+    bgmAmbient.play().catch(() => {
+      console.log("Ambient autoplay 被拦截，等待用户交互");
+    });
+  }
+
+  if (bgmGlitch) {
+    bgmGlitch.play().catch(() => {
+      console.log("Glitch autoplay 被拦截，等待用户交互");
+    });
+  }
+
+  fadeInAudio(bgmAmbient, 5000, 0.5);
+  fadeInAudio(bgmGlitch, 5000, 0.18);
+}
+
+/* 如果浏览器拦截自动播放，首次点击时补播 */
+let bgmStarted = false;
+
+function ensureBgmStarts() {
+  if (bgmStarted) return;
+  bgmStarted = true;
+  startScene3Bgm();
+}
 
 const STAGE_WIDTH = 1440;
 const STAGE_HEIGHT = 1024;
@@ -73,16 +139,11 @@ function animateProgressAsync(fillEl, numEl, duration = 1000) {
       const progress = Math.min(elapsed / duration, 1);
       const percent = Math.floor(progress * 100);
 
-      // 进度条增长
       fillEl.style.width = percent + "%";
-
-      // 数字变化
       numEl.textContent = percent + "%";
 
-      const numWidth = numEl.offsetWidth;
-      const endOffset = 1; // 数字最终停在进度条右边多远，可改 6 / 8 / 10 / 12
-
-      const gap = 1; // 和进度条始终保持的固定距离
+      const endOffset = 1;
+      const gap = 1;
       const x = progress * trackWidth + gap;
       const clampedX = Math.max(0, Math.min(x, trackWidth + endOffset));
 
@@ -140,12 +201,13 @@ async function playAllMemoryBlocks() {
 
 window.addEventListener("load", () => {
   fitStage();
+  ensureBgmStarts();
 
   setTimeout(() => {
     if (mapText) {
       mapText.classList.add("show");
-   }
- }, 2350);
+    }
+  }, 2350);
 
   setTimeout(() => {
     coreGlow.style.opacity = "1";
@@ -182,14 +244,17 @@ window.addEventListener("load", () => {
 
   if (mapHotspot) {
     mapHotspot.addEventListener("click", () => {
-     mapHotspot.classList.remove("active");
-     mapFill.classList.remove("clickable");
-     showMemoryOverlay();
-   });
- }
+      ensureBgmStarts();
+      mapHotspot.classList.remove("active");
+      mapFill.classList.remove("clickable");
+      showMemoryOverlay();
+    });
+  }
 });
 
 window.addEventListener("resize", fitStage);
+window.addEventListener("pointerdown", ensureBgmStarts, { once: true });
+window.addEventListener("keydown", ensureBgmStarts, { once: true });
 
 function enableMapInteraction() {
   if (mapFill) {
@@ -216,7 +281,6 @@ function showMemoryOverlay() {
     memoryLine3?.classList.add("show");
   }, 1150);
 
-  // ⭐ 在最后触发故障跳转
   setTimeout(() => {
     triggerGlitchAndJump();
   }, 2000);
@@ -227,7 +291,10 @@ function triggerGlitchAndJump() {
 
   glitchOverlay.classList.add("active");
 
-  // 0.4s 故障 → 再等一点进入下一页
+  saveScene3BgmState();
+
+  fadeOutAudio(bgmGlitch, 500);
+
   setTimeout(() => {
     window.location.href = "./email/email.html";
   }, 600);

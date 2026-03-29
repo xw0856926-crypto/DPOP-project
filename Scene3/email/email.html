@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="./email.css" />
 </head>
 <body>
-  <audio id="emailBgm" src="./sounds/email-bgm.mp3" loop></audio>
+  <audio id="bgmAmbient" src="../assets/sounds/ambient-loop.mp3" loop></audio>
+  <audio id="bgmGlitch" src="./sounds/glitch.mp3" loop></audio>
+
   <div class="stage" id="stage"></div>
     <div class="email-panel" id="emailPanel">
       <img
@@ -17,22 +19,22 @@
       />
 
       <!-- 文字层 -->
-     <div class="email-text" id="emailText">
-         <p class="text-line delay-1">Dear <span id="playerNameSlot">XXX</span>,</p>
+      <div class="email-text" id="emailText">
+        <p class="text-line delay-1">Dear <span id="playerNameSlot">XXX</span>,</p>
 
-         <p class="text-line delay-2">We understand the pressures you are</p>
-         <p class="text-line delay-3">currently facing.</p>
+        <p class="text-line delay-2">We understand the pressures you are</p>
+        <p class="text-line delay-3">currently facing.</p>
 
-         <p class="text-line delay-4">Our program offers:</p>
-         <p class="text-line delay-5">- Reduced emotional burden</p>
-         <p class="text-line delay-6">- Stable living conditions</p>
-         <p class="text-line delay-7">- Long-term security</p>
+        <p class="text-line delay-4">Our program offers:</p>
+        <p class="text-line delay-5">- Reduced emotional burden</p>
+        <p class="text-line delay-6">- Stable living conditions</p>
+        <p class="text-line delay-7">- Long-term security</p>
 
-         <p class="text-line delay-8">Many participants have reported</p>
-         <p class="text-line delay-9">significant improvements.</p>
+        <p class="text-line delay-8">Many participants have reported</p>
+        <p class="text-line delay-9">significant improvements.</p>
 
-         <p class="text-line delay-10">This is entirely voluntary.</p>
-     </div>
+        <p class="text-line delay-10">This is entirely voluntary.</p>
+      </div>
 
       <!-- 按钮 -->
       <div class="btn-group" id="btnGroup">
@@ -44,6 +46,7 @@
 
   <div id="flashOverlay" class="flash-overlay"></div>
   <div id="blackOverlay" class="black-overlay"></div>
+  <script src="../../assets/click-sound.js"></script>
   <script src="./email.js"></script>
 </body>
 </html>

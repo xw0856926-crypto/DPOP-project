@@ -11,6 +11,46 @@ const glitchFlash = document.getElementById("glitchFlash");
 const endingText = document.getElementById("endingText");
 const reportRoll = document.getElementById("reportRoll");
 
+const bgmAmbient = document.getElementById("bgmAmbient");
+const bgmGlitch = document.getElementById("bgmGlitch");
+
+const AMBIENT_NORMAL_VOLUME = 0.5;
+const GLITCH_NORMAL_VOLUME = 0.32;
+const AMBIENT_DUCK_VOLUME = 0.16;
+const GLITCH_DUCK_VOLUME = 0.08;
+
+function fadeAudioTo(audio, targetVolume, duration = 300) {
+  if (!audio) return;
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const volumeStep = (targetVolume - audio.volume) / steps;
+
+  const fade = setInterval(() => {
+    const next = audio.volume + volumeStep;
+
+    if (
+      (volumeStep >= 0 && next >= targetVolume) ||
+      (volumeStep < 0 && next <= targetVolume)
+    ) {
+      audio.volume = targetVolume;
+      clearInterval(fade);
+    } else {
+      audio.volume = Math.max(0, Math.min(1, next));
+    }
+  }, stepTime);
+}
+
+function duckBgmForQuestion() {
+  fadeAudioTo(bgmAmbient, AMBIENT_DUCK_VOLUME, 220);
+  fadeAudioTo(bgmGlitch, GLITCH_DUCK_VOLUME, 220);
+}
+
+function restoreBgmAfterQuestion() {
+  fadeAudioTo(bgmAmbient, AMBIENT_NORMAL_VOLUME, 420);
+  fadeAudioTo(bgmGlitch, GLITCH_NORMAL_VOLUME, 420);
+}
+
 /*
   roundIndex:
   0 -> 等待第1次 no
@@ -29,6 +69,86 @@ let isBusy = false;
 let isRetrying = false;
 let currentSessionId = 0;
 let micReady = false;
+
+/* ===== 音频淡入淡出 ===== */
+function fadeInAudio(audio, duration = 4000, targetVolume = 0.18) {
+  if (!audio) return;
+
+  const stepTime = 50;
+  const steps = Math.max(1, Math.floor(duration / stepTime));
+  const volumeStep = (targetVolume - audio.volume) / steps;
+
+  const fade = setInterval(() => {
+    const next = audio.volume + volumeStep;
+
+    if (
+      (volumeStep >= 0 && next >= targetVolume) ||
+      (volumeStep < 0 && next <= targetVolume)
+    ) {
+      audio.volume = targetVolume;
+      clearInterval(fade);
+    } else {
+      audio.volume = Math.max(0, Math.min(1, next));
+    }
+  }, stepTime);
+}
+
+/* ===== 读取 Email 传来的 ambient 状态 ===== */
+function getSavedMicrophoneBgmState() {
+  return {
+    shouldResume: sessionStorage.getItem("microphoneAmbientShouldResume") === "true",
+    ambientTime: parseFloat(sessionStorage.getItem("microphoneAmbientTime") || "0"),
+    ambientVolume: parseFloat(sessionStorage.getItem("microphoneAmbientVolume") || "0.5")
+  };
+}
+
+function clearSavedMicrophoneBgmState() {
+  sessionStorage.removeItem("microphoneAmbientShouldResume");
+  sessionStorage.removeItem("microphoneAmbientTime");
+  sessionStorage.removeItem("microphoneAmbientVolume");
+}
+
+/* ===== 启动 microphone 页面双音轨 ===== */
+function startMicrophoneBgm() {
+  const saved = getSavedMicrophoneBgmState();
+
+  if (bgmAmbient) {
+    bgmAmbient.volume = 0;
+
+    if (saved.shouldResume && !Number.isNaN(saved.ambientTime)) {
+      try {
+        bgmAmbient.currentTime = saved.ambientTime;
+      } catch (err) {
+        console.log("设置 microphone ambient 播放进度失败", err);
+      }
+    }
+
+    bgmAmbient.play().then(() => {
+      fadeInAudio(bgmAmbient, 1200, saved.ambientVolume || AMBIENT_NORMAL_VOLUME);
+    }).catch(() => {
+      console.log("Microphone ambient autoplay 被拦截，等待用户交互");
+    });
+  }
+
+  if (bgmGlitch) {
+    bgmGlitch.volume = 0;
+    bgmGlitch.play().then(() => {
+      fadeInAudio(bgmGlitch, 1600, GLITCH_NORMAL_VOLUME);
+    }).catch(() => {
+      console.log("Microphone glitch autoplay 被拦截，等待用户交互");
+    });
+  }
+
+  clearSavedMicrophoneBgmState();
+}
+
+let microphoneBgmStarted = false;
+
+function ensureMicrophoneBgmStarts() {
+  if (microphoneBgmStarted) return;
+  microphoneBgmStarted = true;
+  startMicrophoneBgm();
+}
 
 function fitStage() {
   const winW = window.innerWidth;
@@ -161,7 +281,7 @@ function containsYesPlease(text) {
 
 function getPlaybackForRound(indexAfterSuccess) {
   if (indexAfterSuccess === 1) {
-    return { volume: 0.92, rate: 1.08 };
+    return { volume: 1.0, rate: 1.08 };
   }
   if (indexAfterSuccess === 2) {
     return { volume: 1.0, rate: 1.18 };
@@ -169,7 +289,7 @@ function getPlaybackForRound(indexAfterSuccess) {
   if (indexAfterSuccess === 3) {
     return { volume: 1.0, rate: 1.3 };
   }
-  return { volume: 0.8, rate: 1.0 };
+  return { volume: 1.0, rate: 1.0 };
 }
 
 function playQuestionAudio(volume = 1, rate = 1) {
@@ -178,6 +298,8 @@ function playQuestionAudio(volume = 1, rate = 1) {
       resolve();
       return;
     }
+
+    duckBgmForQuestion();
 
     questionAudio.pause();
     questionAudio.currentTime = 0;
@@ -188,6 +310,7 @@ function playQuestionAudio(volume = 1, rate = 1) {
     const onEnded = () => {
       questionAudio.removeEventListener("ended", onEnded);
       questionAudio.playbackRate = 1;
+      restoreBgmAfterQuestion();
       resolve();
     };
 
@@ -199,6 +322,7 @@ function playQuestionAudio(volume = 1, rate = 1) {
         console.log("Question audio play failed:", err);
         questionAudio.removeEventListener("ended", onEnded);
         questionAudio.playbackRate = 1;
+        restoreBgmAfterQuestion();
         resolve();
       });
     }
@@ -328,75 +452,75 @@ async function startSingleRecognitionSession() {
   };
 
   recognition.onresult = async (event) => {
-      if (sessionId !== currentSessionId) return;
-      if (handled) return;
+    if (sessionId !== currentSessionId) return;
+    if (handled) return;
 
-      let transcript = "";
-      let finalTranscript = "";
-      let hasFinal = false;
+    let transcript = "";
+    let finalTranscript = "";
+    let hasFinal = false;
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-         const chunk = event.results[i][0].transcript.trim();
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const chunk = event.results[i][0].transcript.trim();
 
-         if (chunk) {
-              transcript += chunk + " ";
-           }
+      if (chunk) {
+        transcript += chunk + " ";
+      }
 
-         if (event.results[i].isFinal) {
-              hasFinal = true;
-             finalTranscript += chunk + " ";
-           }
-       }
+      if (event.results[i].isFinal) {
+        hasFinal = true;
+        finalTranscript += chunk + " ";
+      }
+    }
 
-       transcript = transcript.trim().toLowerCase();
-       finalTranscript = finalTranscript.trim().toLowerCase();
+    transcript = transcript.trim().toLowerCase();
+    finalTranscript = finalTranscript.trim().toLowerCase();
 
-       console.log(
-           "Recognized:",
-            transcript,
-           "| finalTranscript:",
-           finalTranscript,
-           "| hasFinal:",
-           hasFinal,
-           "| session:",
-           sessionId,
-          "| round:",
-           roundIndex
-       );
+    console.log(
+      "Recognized:",
+      transcript,
+      "| finalTranscript:",
+      finalTranscript,
+      "| hasFinal:",
+      hasFinal,
+      "| session:",
+      sessionId,
+      "| round:",
+      roundIndex
+    );
 
-       if (!transcript) return;
+    if (!transcript) return;
 
-       // no 阶段：短词，允许尽快触发
-       if (roundIndex < 3) {
-           if (containsNo(transcript)) {
-              handled = true;
-              cleanupRecognition();
-              await handleNoSuccess();
-              return;
-            } 
+    // no 阶段：短词，允许尽快触发
+    if (roundIndex < 3) {
+      if (containsNo(transcript)) {
+        handled = true;
+        cleanupRecognition();
+        await handleNoSuccess();
+        return;
+      }
 
-         // no 阶段只有在拿到 final 结果且仍然不是 no 时，才算失败
-         if (hasFinal) {
-             handled = true;
-             cleanupRecognition();
-             await handleWrongAttempt();
-           }
+      // no 阶段只有在拿到 final 结果且仍然不是 no 时，才算失败
+      if (hasFinal) {
+        handled = true;
+        cleanupRecognition();
+        await handleWrongAttempt();
+      }
 
-         return;
-       }
+      return;
+    }
 
-      // yes please 阶段：必须等 final result 再判断
-     if (!hasFinal) return;
- 
-     handled = true;
-     cleanupRecognition();
+    // yes please 阶段：必须等 final result 再判断
+    if (!hasFinal) return;
 
-     if (containsYesPlease(finalTranscript)) {
-         await handleYesPleaseSuccess();
-      } else {
-         await handleWrongAttempt();
-       }
-   };
+    handled = true;
+    cleanupRecognition();
+
+    if (containsYesPlease(finalTranscript)) {
+      await handleYesPleaseSuccess();
+    } else {
+      await handleWrongAttempt();
+    }
+  };
 
   recognition.onerror = async (event) => {
     if (sessionId !== currentSessionId) return;
@@ -440,13 +564,16 @@ async function startSingleRecognitionSession() {
 
 window.addEventListener("load", () => {
   fitStage();
+  ensureMicrophoneBgmStarts();
+
   question.classList.add("question-start");
   updateQuestionIntensity();
 
   if (questionAudio) {
-    questionAudio.volume = 0.8;
+    questionAudio.volume = 1;
     questionAudio.playbackRate = 1;
 
+    duckBgmForQuestion();
     const playPromise = questionAudio.play();
     if (playPromise !== undefined) {
       playPromise.catch((err) => {
@@ -455,19 +582,22 @@ window.addEventListener("load", () => {
     }
 
     questionAudio.addEventListener(
-      "ended",
-      () => {
-        questionAudio.playbackRate = 1;
-        showSpeakUI();
-      },
-      { once: true }
-    );
+     "ended",
+     () => {
+       questionAudio.playbackRate = 1;
+       restoreBgmAfterQuestion();
+       showSpeakUI();
+     },
+     { once: true }
+   );
   } else {
     setTimeout(showSpeakUI, 5000);
   }
 });
 
 window.addEventListener("resize", fitStage);
+window.addEventListener("pointerdown", ensureMicrophoneBgmStarts, { once: true });
+window.addEventListener("keydown", ensureMicrophoneBgmStarts, { once: true });
 
 micButton.addEventListener("click", async () => {
   if (!speakUIShown) return;

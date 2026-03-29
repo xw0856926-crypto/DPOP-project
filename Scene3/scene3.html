@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="./scene3.css" />
 </head>
 <body>
-  <audio id="bgm" src="./assets/sounds/Scene3-bgm.mp3" loop></audio>
+  <audio id="bgmAmbient" src="./assets/sounds/ambient-loop.mp3" loop></audio>
+  <audio id="bgmGlitch" src="./assets/sounds/glitch.mp3" loop></audio>
+
   <div id="viewport">
     <div id="stage">
       <div id="glitchOverlay"></div>
@@ -24,7 +26,7 @@
 
       <div id="mapText">
         [The number of natural persons is determined to meet the maximum supply of existing resources.]
-     </div>
+      </div>
 
       <!-- 右侧面板 -->
       <div id="memoryPanel">
@@ -71,27 +73,28 @@
       </div>
 
       <!-- 地图点击热区 -->
-      <div id="mapHotspot"></div>
+      <div id="mapHotspot" class="clickable"></div>
 
       <!-- 黑色遮罩 + 中间弹框 -->
       <div id="memoryOverlay">
-       <div id="memoryDialog">
-         <img
-           id="memoryDialogBg"
-           src="./assets/images/memoryDialog frame.png"
-           alt="Dialog Frame"
-         />
+        <div id="memoryDialog">
+          <img
+            id="memoryDialogBg"
+            src="./assets/images/memoryDialog frame.png"
+            alt="Dialog Frame"
+          />
 
-         <div id="memoryDialogContent">
-           <div class="memory-line" id="memoryLine1">Memory module activated</div>
-           <div class="memory-line" id="memoryLine2">Reconstructing identity...</div>
-           <div class="memory-line" id="memoryLine3">Loading personal data...</div>
-         </div>
-       </div>
-     </div>
+          <div id="memoryDialogContent">
+            <div class="memory-line" id="memoryLine1">Memory module activated</div>
+            <div class="memory-line" id="memoryLine2">Reconstructing identity...</div>
+            <div class="memory-line" id="memoryLine3">Loading personal data...</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <script src="../assets/click-sound.js"></script>
   <script src="./scene3.js"></script>
 </body>
 </html>
