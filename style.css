@@ -4,6 +4,7 @@
   font-weight: 400;
   font-style: normal;
 }
+
 @font-face {
   font-family: "CascadiaSystem";
   src: url("assets/fonts/CascadiaCode.ttf") format("truetype");
@@ -12,31 +13,64 @@
   font-display: swap;
 }
 
-/* 页面居中展示你的 1440*1024 画面（按需改） */
-body {
-  margin: 0;
-  background: #0b0710;
-  display: grid;
-  place-items: center;
-  height: 100vh;
+/* ===== 基础重置：只为固定舞台、防止滑动 ===== */
+* {
+  box-sizing: border-box;
 }
 
-/* 这里建议用你导出图片的真实尺寸 */
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0b0710;
+  overscroll-behavior: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+/* ===== 舞台外层：负责居中显示 ===== */
+#viewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0b0710;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ===== 固定舞台：永远按 1440 × 1024 设计 ===== */
+#stage.stage,
 .stage {
   position: relative;
   width: 1440px;
   height: 1024px;
   overflow: hidden;
+  background: transparent;
+  transform-origin: center center;
+  flex-shrink: 0;
 }
 
+/* ===== 背景界面图 ===== */
 .screen {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-/* 倒计时叠加位置：你需要微调 top/right */
+/* ===== 倒计时：保持你原来的 UI 不变 ===== */
 .timer {
   position: absolute;
   /* ↓↓↓ 这两个就是“把数字挪到你红色 00:30 那块”的关键 */
@@ -56,7 +90,6 @@ body {
   /* 默认颜色：和你 UI 的紫红接近 */
   color: #EA34F7;
   text-shadow: 0 0 12px rgba(216, 75, 255, 0.35);
-
 }
 
 /* 5秒内：改成红 + 轻微闪烁 */
@@ -70,7 +103,7 @@ body {
   to   { opacity: 0.35; }
 }
 
-/* 警告覆盖层：默认不显示 */
+/* ===== 警告覆盖层 ===== */
 .warning {
   position: absolute;
   inset: 0;
@@ -82,20 +115,21 @@ body {
 }
 
 /* 让 warning 有“抖动/闪烁”的紧张感（可选） */
-.warning{
+.warning {
   display: none;
 }
 
-.warning.is-on{
+.warning.is-on {
   display: block;
   animation: warningFlash 0.35s infinite alternate;
 }
 
-@keyframes warningFlash{
+@keyframes warningFlash {
   from { opacity: 0.85; }
   to   { opacity: 0.35; }
 }
-/* audio unlock overlay */
+
+/* ===== audio unlock overlay ===== */
 .audio-unlock {
   position: fixed;
   inset: 0;
@@ -105,7 +139,10 @@ body {
   z-index: 9999;
   cursor: pointer;
 }
-.audio-unlock.hidden { display: none; }
+
+.audio-unlock.hidden {
+  display: none;
+}
 
 .audio-unlock .unlock-inner {
   padding: 28px 36px;
@@ -115,18 +152,21 @@ body {
   text-align: center;
   box-shadow: 0 8px 30px rgba(0,0,0,0.6);
 }
+
 .audio-unlock .unlock-title {
   font-size: 18px;
   letter-spacing: 0.12em;
   color: #dbeffd;
   margin-bottom: 6px;
 }
+
 .audio-unlock .unlock-sub {
   font-size: 13px;
   color: rgba(220,220,220,0.78);
 }
-/* ✅ Option 组件按钮：可点击的真实 UI */
-.option{
+
+/* ===== Option 按钮 ===== */
+.option {
   position: absolute;
   z-index: 6;                 /* 在背景图之上 */
   width: 380px;               /* 先给大概值，后面微调 */
@@ -142,7 +182,7 @@ body {
 }
 
 /* Option 边框图铺满整个按钮 */
-.option__frame{
+.option__frame {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -154,7 +194,7 @@ body {
 }
 
 /* 文本层 */
-.option__tag{
+.option__tag {
   position: absolute;
   top: 30px;
   padding: 6px 12px;
@@ -166,15 +206,15 @@ body {
   pointer-events: auto;
 }
 
-.option--a .option__tag{
+.option--a .option__tag {
   left: 60px;
 }
 
-.option--b .option__tag{
+.option--b .option__tag {
   right: 70px;
 }
 
-.option__title{
+.option__title {
   position: absolute;
   left: 101px;
   top: 86px;
@@ -187,102 +227,66 @@ body {
 }
 
 /* hover 小反馈（可选） */
-.option:hover{
+.option:hover {
   transform: translateY(-2px);
   transition: 0.15s;
 }
 
-/* ✅ 定位：根据你的 1440x1024 画面微调 */
-.option--a{
+/* ===== Option 定位 ===== */
+.option--a {
   left: 42px;
   top: 93px;
 }
 
-.option--b{
+.option--b {
   left: 1025px;
   top: 93px;
 }
 
-/* ✅ 键盘可访问焦点 */
-.option:focus-visible{
+/* 键盘可访问焦点 */
+.option:focus-visible {
   outline: 2px solid rgba(180,255,255,0.85);
   outline-offset: 2px;
 }
 
-/* TASK2 专用按钮（结构和 option 一样） */
-.option--task2{
+/* ===== TASK2 专用按钮 ===== */
+.option--task2 {
   position: absolute;
 
-  /* 🔴 你需要根据画面微调这几个值 */
   left: 543px;
   top: 606px;
   width: 360px;
   height: 92px;
 
-  display: none;   /* 默认隐藏 */
+  display: none;
   background: none;
   border: none;
   cursor: pointer;
 }
 
 /* 让 SVG 填满按钮 */
-.option--task2 .option__frame{
+.option--task2 .option__frame {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-/* TASK2 文字样式（可单独调） */
-.option--task2 .option__title{
+/* TASK2 文字样式 */
+.option--task2 .option__title {
   position: absolute;
   left: 50%;
   top: 48%;
   transform: translate(-50%, -50%);
 
   font-family: "CascadiaSystem", monospace;
-  font-weight: 700;   /* Bold */
+  font-weight: 700;
   font-size: 24px;
   letter-spacing: 0px;
   color: #ffffff;
 }
 
-/* TASK THREE 按钮（outcome2 页面出现） */
-.option--task3{
-  position: absolute;
-  z-index: 8;
-  display: none;       /* 默认隐藏，outcome2 再显示 */
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  /* 🔴 先给一组初始值：你根据 outcome2 里按钮位置微调 */
-  left: 543px;
-  top: 606px;
-  width: 360px;
-  height: 92px;
-}
-
-.option--task3 .option__frame{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* 文字：沿用你整理好的 Cascadia variable 系统（粗体可调） */
-.option--task3 .option__title{
-  position: absolute;
-  left: 50%;
-  top: 48%;
-  transform: translate(-50%, -50%);
-
-  font-family: "CascadiaSystem", monospace; /* 你之前整理的字体系统名 */
-  font-weight: 700;
-  font-size: 24px;
-  letter-spacing: 0px;
-  color: #fff;
-}
-
-.option--analyse{
+/* ===== TASK THREE 按钮 ===== */
+.option--task3 {
   position: absolute;
   z-index: 8;
   display: none;
@@ -290,26 +294,59 @@ body {
   border: none;
   cursor: pointer;
 
-  /* 先给一个初始值，你用 DevTools 微调 */
   left: 543px;
   top: 606px;
   width: 360px;
   height: 92px;
 }
 
-.option--analyse .option__frame{
+.option--task3 .option__frame {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.option--analyse .option__title{
+.option--task3 .option__title {
   position: absolute;
   left: 50%;
   top: 48%;
   transform: translate(-50%, -50%);
 
-  font-family: "CascadiaSystem", monospace; /* 用你整理好的字体系统名 */
+  font-family: "CascadiaSystem", monospace;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0px;
+  color: #fff;
+}
+
+/* ===== ANALYSE 按钮 ===== */
+.option--analyse {
+  position: absolute;
+  z-index: 8;
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  left: 543px;
+  top: 606px;
+  width: 360px;
+  height: 92px;
+}
+
+.option--analyse .option__frame {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.option--analyse .option__title {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+
+  font-family: "CascadiaSystem", monospace;
   font-weight: 700;
   font-size: 24px;
   letter-spacing: 0px;

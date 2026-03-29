@@ -10,6 +10,12 @@ const task2Btn = document.getElementById("task2Btn");
 const task3Btn = document.getElementById("task3Btn");
 const analyseBtn = document.getElementById("analyseBtn");
 
+// ✅ 新增：固定舞台缩放
+const viewportEl = document.getElementById("viewport");
+const stageEl = document.getElementById("stage");
+const STAGE_WIDTH = 1440;
+const STAGE_HEIGHT = 1024;
+
 // 原有 audio
 const taskAudio = document.getElementById("taskAudio");
 const resultAudio = document.getElementById("resultAudio");
@@ -29,6 +35,27 @@ let activeTaskTicks = [];
 // ✅ 防止重复启动 BGM
 let taskBgmStarted = false;
 let ambientFadeInterval = null;
+
+// ✅ 新增：让舞台始终按 1440 × 1024 等比缩放并居中
+function fitStage() {
+  if (!stageEl) return;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const scale = Math.min(vw / STAGE_WIDTH, vh / STAGE_HEIGHT);
+
+  stageEl.style.width = `${STAGE_WIDTH}px`;
+  stageEl.style.height = `${STAGE_HEIGHT}px`;
+  stageEl.style.transform = `scale(${scale})`;
+  stageEl.style.transformOrigin = "center center";
+}
+
+// ✅ 新增：更稳一点，处理某些移动端/检查元素变化
+function requestFitStage() {
+  window.requestAnimationFrame(() => {
+    fitStage();
+  });
+}
 
 function formatTime(seconds) {
   const m = String(Math.floor(seconds / 60)).padStart(2, "0");
@@ -425,10 +452,10 @@ function startCountdown(seconds) {
 
     // 时间到
     if (remaining <= 0) {
-     clearInterval(timerId);
-     timerId = null;
-     stopTaskAudio();
-     goToResult();
+      clearInterval(timerId);
+      timerId = null;
+      stopTaskAudio();
+      goToResult();
     }
   }, 1000);
 }
@@ -488,21 +515,28 @@ if (audioUnlock) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  // ✅ 先适配舞台
+  fitStage();
+  requestFitStage();
+  setTimeout(requestFitStage, 60);
+  setTimeout(requestFitStage, 180);
+
   setWarning(false);
+
   // ✅ Option A/B：点击进入 goToResult
   if (optA) {
-   optA.addEventListener("click", () => {
-     hideWarningImmediately();
-     goToResult();
-   });
- }
+    optA.addEventListener("click", () => {
+      hideWarningImmediately();
+      goToResult();
+    });
+  }
 
- if (optB) {
-   optB.addEventListener("click", () => {
-     hideWarningImmediately();
-     goToResult();
-   });
- }
+  if (optB) {
+    optB.addEventListener("click", () => {
+      hideWarningImmediately();
+      goToResult();
+    });
+  }
 
   // ✅ Task2 / Task3
   if (task2Btn) {
@@ -516,14 +550,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   if (analyseBtn) {
-   analyseBtn.onclick = null;
-   analyseBtn.addEventListener("click", () => {
-     if (currentStage !== "outcome3") return;
+    analyseBtn.onclick = null;
+    analyseBtn.addEventListener("click", () => {
+      if (currentStage !== "outcome3") return;
 
-     saveBgmState();
-     window.location.href = "analyse.html";
-   });
- }
+      saveBgmState();
+      window.location.href = "analyse.html";
+    });
+  }
 
   // ✅ 只在 task 阶段启动倒计时
   if (currentStage === "task") startCountdown(30);
@@ -583,3 +617,12 @@ window.addEventListener("DOMContentLoaded", () => {
     };
   }
 });
+
+// ✅ 新增：窗口尺寸变化时重新适配舞台
+window.addEventListener("resize", requestFitStage);
+window.addEventListener("orientationchange", requestFitStage);
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", requestFitStage);
+  window.visualViewport.addEventListener("scroll", requestFitStage);
+}
