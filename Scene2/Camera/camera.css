@@ -22,7 +22,7 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #0b0610;
+  background: #000000;
 }
 
 body {
@@ -36,7 +36,7 @@ body {
   width: min(100vw, calc(100vh * 1440 / 1024));
   aspect-ratio: 1440 / 1024;
   overflow: hidden;
-  background: #120617;
+  background: #000000;
 }
 
 /* 两张背景图叠在一起 */

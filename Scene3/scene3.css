@@ -22,7 +22,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #120617;
+  background: #000000;
 }
 
 /* 整个浏览器可视区 */
@@ -41,7 +41,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #120617;
+  background: #000000;
 }
 
 /* 固定逻辑尺寸舞台：永远按 1440x1024 来摆元素 */
