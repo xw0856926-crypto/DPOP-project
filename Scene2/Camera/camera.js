@@ -660,6 +660,6 @@ function goToScene3WithGlitch() {
   }, 900);
 
   setTimeout(() => {
-    window.location.href = "../../Scene3/Scene3.html";
+    window.location.href = "../../Scene3/scene3.html";
   }, 1100);
 }
